@@ -1,19 +1,6 @@
 use rand::prelude::*;
-use std::fs::File;
-use std::io::prelude::*;
-use std::panic;
 
-fn main() {
-    let mut n = 100_000;
-    let mut rng = rand::rng();
-    let mut file_results = File::create("results.dat").unwrap();
-    while n > 0 {
-        writeln!(file_results, "{}", n);
-        n = decay_step(n, 0.01, &mut rng);
-    }
-}
-
-fn decay_step(n: i64, p: f64, rng: &mut ThreadRng) -> i64 {
+pub fn decay_step(n: i64, p: f64, rng: &mut ThreadRng) -> i64 {
     debug_assert!(n >= 0, "n must be non-negative");
     debug_assert!(0.0<=p || p<=1.0,"p must be a probability");
     let mut n_new = n;
