@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D  # noqa: F401, needed for 3D projection
 
 potencial = np.load("results/eletric_potential.npy")
-
 # 2D image
 plt.figure()
 plt.imshow(potencial, cmap="grey")
