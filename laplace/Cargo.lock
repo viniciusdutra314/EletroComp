@@ -201,6 +201,7 @@ dependencies = [
  "contracts",
  "ndarray",
  "ndarray-npy",
+ "num-traits",
 ]
 
 [[package]]
