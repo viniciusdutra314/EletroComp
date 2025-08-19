@@ -1,6 +1,7 @@
 #Custom
 *.dat
 *.jpg
+*.png
 *.npy
 *.npz
 
