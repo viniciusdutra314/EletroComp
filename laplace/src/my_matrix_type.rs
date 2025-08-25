@@ -1,15 +1,14 @@
 use contracts::*;
-use npyz::{Serialize, WriterBuilder,AutoSerialize};
 use num_traits::Num;
-use std::{fs::File, mem::MaybeUninit};
+use std::{mem::MaybeUninit};
 
 #[derive(Clone)]
-pub struct SymmetricMatrixUninit<T: Num + Copy+ Serialize> {
+pub struct SymmetricMatrixUninit<T: Num + Copy> {
     data: Box<[MaybeUninit<T>]>,
     dimension: usize,
 }
 
-impl<T: num_traits::Num + Copy+Serialize> SymmetricMatrixUninit<T> {
+impl<T: num_traits::Num + Copy> SymmetricMatrixUninit<T> {
     pub fn new(n: usize) -> Self {
         return Self {
             data: Box::new_uninit_slice(n * (n + 1) / 2),
@@ -51,12 +50,12 @@ impl<T: num_traits::Num + Copy+Serialize> SymmetricMatrixUninit<T> {
 }
 
 #[derive(Clone)]
-pub struct SymmetricMatrix<T:Num + Copy+Serialize+AutoSerialize> {
+pub struct SymmetricMatrix<T:Num + Copy> {
     data: Box<[T]>,
     dimension: usize,
 }
 
-impl<T: Num + Copy+Serialize+AutoSerialize> SymmetricMatrix<T> {
+impl<T: Num + Copy> SymmetricMatrix<T> {
     pub fn new(n: usize, fill_value: T) -> Self {
         return Self {
             data: vec![fill_value; n * (n + 1) / 2].into_boxed_slice(),
@@ -119,7 +118,7 @@ impl<T: Num + Copy+Serialize+AutoSerialize> SymmetricMatrix<T> {
         }
     }
 
-    pub fn save_to_npy(&self,file:&mut std::fs::File){
+/*     pub fn save_to_npy(&self,file:&mut std::fs::File){
         let shape=[self.dimension as u64,self.dimension as u64];
         let mut writer=npyz::WriteOptions::<T>::new().
         default_dtype().
@@ -131,9 +130,7 @@ impl<T: Num + Copy+Serialize+AutoSerialize> SymmetricMatrix<T> {
                 }
             }
         }
-        
-        
-    }
+    } */
 
 }
 
