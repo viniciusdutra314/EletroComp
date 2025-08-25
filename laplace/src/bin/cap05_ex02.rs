@@ -12,12 +12,13 @@ fn laplace_simulation(n: usize, quadrado_interno: f64, tolerance: f64) -> Symmet
     let mut v_old = SymmetricMatrix::<f64>::new(n/2,0.0);
 
     for i in l_0..n/2 {
-        v_old.set(i, l_0, 1.0);
-        v_old.set(l_0, i, 1.0);
+        for j in l_0..n/2{
+            v_old.set(i, j, 1.0);
+        };
     }
 
-    let on_square_border = |x: usize, y: usize| {
-        ((x == l_0) && (y >= l_0)) || ((y == l_0) && (x >= l_0))
+    let inside_square = |x: usize, y: usize| {
+        x >=l_0 && y >= l_0
     };
 
     let mut v_new = v_old.clone();
@@ -26,11 +27,14 @@ fn laplace_simulation(n: usize, quadrado_interno: f64, tolerance: f64) -> Symmet
 
     loop {
         let mut new_delta_v=0.0;
-        for i in 1..n/2-1{
-            for j in 1..=i{
-                if !on_square_border(i,j){
-                    let update_v=(v_old.get(i+1,j)+v_old.get(i-1,j)+
-                v_old.get(i, j+1)+v_old.get(i, j-1))/4.0;
+        for i in 1..n/2{
+            for j in 1..n/2{
+                if !inside_square(i,j){
+                    let right=if i==n/2-1 {v_old.get(i-1,j)} else {v_old.get(i+1, j)};
+                    let left=v_old.get(i-1, j);
+                    let down=v_old.get(i, j-1);
+                    let up=if j==n/2-1 {v_old.get(i, j-1)} else{v_old.get(i, j+1)};
+                    let update_v=(right+left+down+up)/4.0;
                     v_new.set(i, j, update_v);
                     new_delta_v+=(v_old.get(i,j)-update_v).abs();
                 }
@@ -48,7 +52,7 @@ fn laplace_simulation(n: usize, quadrado_interno: f64, tolerance: f64) -> Symmet
 }
 
 fn main() {
-    let n=100;
+    let n=500;
     let quadrado_interno=0.2;
     let tolerance=1e-5;
     let partial_result = laplace_simulation(n, quadrado_interno, tolerance);

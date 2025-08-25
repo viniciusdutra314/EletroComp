@@ -17,16 +17,14 @@ fn laplace_simulation(n: usize, quadrado_interno: f64, tolerance: f64) -> Array2
     let l_f = n / 2 + lado_quadrado/2;
     let mut v_old = Array2::<f64>::zeros((n, n));
 
-    for i in l_0..l_f {
-        v_old[(i, l_0)] = 1.0;
-        v_old[(i, l_f)] = 1.0;
-        v_old[(l_0, i)] = 1.0;
-        v_old[(l_f, i)] = 1.0;
+    for i in l_0..=l_f {
+        for j in l_0..=l_f{
+            v_old[(i,j)]=1.0;
+        };
     }
 
-    let on_square_border = |x: usize, y: usize| {
-        ((x == l_0 || x == l_f) && (y > l_0 && y < l_f))
-            || ((y == l_0 || y == l_f) && (x > l_0 && x < l_f))
+    let inside_square = |x: usize, y: usize| {
+        (x >=l_0 && x <= l_f) && (y >= l_0 && y <= l_f)
     };
 
     let mut v_new = v_old.clone();
@@ -42,7 +40,7 @@ fn laplace_simulation(n: usize, quadrado_interno: f64, tolerance: f64) -> Array2
                 let mut partial_delta_v = 0.0;
                 if x != 0 && x != n - 1 {
                     for y in 1..n - 1 {
-                        if !on_square_border(x, y) {
+                        if !inside_square(x, y) {
                             row[y] = (v_old[(x + 1, y)]
                                 + v_old[(x - 1, y)]
                                 + v_old[(x, y + 1)]
@@ -67,8 +65,8 @@ fn laplace_simulation(n: usize, quadrado_interno: f64, tolerance: f64) -> Array2
 }
 
 fn main() {
-    let n=101;
-    let quadrado_interno=0.3;
+    let n=500;
+    let quadrado_interno=0.2;
     let tolerance=1e-5;
     let result = laplace_simulation(n, quadrado_interno, tolerance);
     if let Err(error) = fs::create_dir_all("results") {
