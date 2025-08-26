@@ -77,7 +77,7 @@ impl<T: Num + Copy> SymmetricMatrix<T> {
         }
         return unsafe { uninit_matrix.has_initialized() };
     }
-    pub fn get_dimension(&self) -> usize {
+    pub fn get_dim(&self) -> usize {
         return self.dimension;
     }
 
@@ -209,8 +209,8 @@ mod tests {
     #[test]
     fn test_symmmetry() {
         let mut matrix = SymmetricMatrix::<i128>::new(10, 0);
-        for i in 0..matrix.get_dimension() {
-            for j in 0..matrix.get_dimension() {
+        for i in 0..matrix.get_dim() {
+            for j in 0..matrix.get_dim() {
                 unsafe {
                     let value = (i * j + j + i) as i128;
                     matrix.set_uncheked(i, j, value);

@@ -61,8 +61,8 @@ fn main() {
     }
 
     let mut total_result=ndarray::Array2::<f64>::zeros((n,n));
-    for x in 0..partial_result.get_dimension(){
-        for y in 0..partial_result.get_dimension(){
+    for x in 0..partial_result.get_dim(){
+        for y in 0..partial_result.get_dim(){
             total_result[(x,y)]=partial_result.get(x, y);
             total_result[(x,(n-1)-y)]=partial_result.get(x, y);
             total_result[((n-1)-x,y)]=partial_result.get(x, y);
