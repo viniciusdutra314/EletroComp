@@ -5,7 +5,7 @@ from mpl_toolkits.mplot3d import Axes3D
 potencial = np.load("results/ex04.npy")
 
 plt.figure()
-plt.imshow(potencial, cmap="hot")
+plt.imshow(potencial, cmap="bwr")
 plt.colorbar()
 plt.title("Electric Potential (2D)")
 plt.tight_layout()

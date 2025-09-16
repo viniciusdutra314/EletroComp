@@ -2,14 +2,18 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D  
 
-potencial = np.load("results/ex04.npy")
+potencial = np.load("../results/ex04.npy")
+E_y,E_x=np.gradient(-potencial)
+N=20
+X=np.arange(0,potencial.shape[0])
+Y=np.arange(0,potencial.shape[1])
+plt.quiver(X[::N],Y[::N],E_x[::N,::N],E_y[::N,::N])
 
-plt.figure()
-plt.imshow(potencial, cmap="hot")
-plt.colorbar()
+im=plt.imshow(potencial, cmap="bwr",origin="lower")
+plt.colorbar(im)
 plt.title("Electric Potential (2D)")
 plt.tight_layout()
-plt.savefig("results/eletric_potential.jpg", dpi=200)
+plt.savefig("../results/ex04_eletric_potential.jpg", dpi=200)
 
 ny, nx = potencial.shape
 x = np.arange(nx)
@@ -27,6 +31,6 @@ ax.set_zlabel("V")
 ax.set_title("Electric Potential (wireframe)")
 ax.view_init(elev=30, azim=-60)
 fig.tight_layout()
-fig.savefig("results/eletric_potential_wire.jpg", dpi=200)
+fig.savefig("../results/ex04_eletric_potential_wire.jpg", dpi=200)
 
 plt.close("all")

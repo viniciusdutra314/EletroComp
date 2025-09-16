@@ -13,7 +13,7 @@ use ndarray_npy::write_npy;
 #[requires(tolerance>0.0,"Tolerância precisa ser um valor positivo não nulo")]
 fn laplace_simulation(n: usize, plate_separation: usize, plate_height:usize,tolerance: f64) -> Array2<f64> {
     let mut v_old = Array2::<f64>::zeros((n, n));
-    for height in (n/2 - plate_height)..(n/2 + plate_height){
+    for height in (n/2 - plate_height)..=(n/2 + plate_height){
         v_old[(n/2+plate_separation,height)]=-1.0;
         v_old[(n/2-plate_separation,height)]=1.0;
 
