@@ -3,7 +3,9 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D  
 
 potencial = np.load("../results/ex04.npy")
+potencial = np.rot90(potencial)
 E_y,E_x=np.gradient(-potencial)
+
 N=20
 X=np.arange(0,potencial.shape[0])
 Y=np.arange(0,potencial.shape[1])

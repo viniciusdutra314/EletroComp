@@ -16,7 +16,6 @@ fn laplace_simulation(n: usize, plate_separation: usize, plate_height:usize,tole
     for height in (n/2 - plate_height)..=(n/2 + plate_height){
         v_old[(n/2+plate_separation,height)]=-1.0;
         v_old[(n/2-plate_separation,height)]=1.0;
-
     }
     
     let inside_plate = |x: usize, y: usize| {

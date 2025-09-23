@@ -2,12 +2,8 @@ use core::f64;
 use std::fs::{self};
 
 use contracts::*;
-use ndarray::parallel::prelude::*;
-use ndarray::{
-    parallel::prelude::{IntoParallelIterator, ParallelIterator},
-    Array2,
-};
-use ndarray_npy::write_npy;
+use poisson::{*};
+use ndarray::{Array2};
 
 #[requires(quadrado_interno>0.0 && quadrado_interno<1.0,"Quadrado precisa ser uma porcentagem")]
 #[requires(tolerance>0.0,"Tolerância precisa ser um valor positivo não nulo")]
@@ -71,7 +67,7 @@ fn main() {
     let result = laplace_simulation(n, quadrado_interno, tolerance);
     if let Err(error) = fs::create_dir_all("results") {
         panic!("{error}");
-    }
+    };
     if let Err(error) = write_npy("results/eletric_potential.npy", &result) {
         panic!("{error}");
     }
