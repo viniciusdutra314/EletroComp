@@ -1,6 +1,5 @@
 use core::f64;
 use std::fs::{self};
-use laplace::my_matrix_type::SymmetricMatrix;
 use contracts::*;
 use ndarray_npy::write_npy;
 
