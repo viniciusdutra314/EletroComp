@@ -1,6 +1,5 @@
 
-use eletrocomp::laplace::{create_initial_condition_fig5_4, ex02_boundary_condition, jacobi_method, save_array, simulate_laplace, EletricPotential};
-use ndarray::{Array2,s};
+use eletrocomp::definitions::{*};
 
 
 fn main() {

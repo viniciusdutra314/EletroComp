@@ -1,4 +1,4 @@
-use eletrocomp::laplace::{*};
+use eletrocomp::definitions::{*};
 
 
 fn main() {
