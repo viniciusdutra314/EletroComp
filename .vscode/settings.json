@@ -1,0 +1,5 @@
+{
+    "rust-analyzer.linkedProjects": [
+        "relatorio1/simulation/Cargo.toml"
+    ]
+}

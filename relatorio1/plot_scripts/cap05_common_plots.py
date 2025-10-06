@@ -1,0 +1,31 @@
+import matplotlib.pyplot as plt
+import numpy as np
+
+
+def plot_potential_2d_colormap(potencial: np.ndarray,title:str,cmap:str) -> (tuple[plt.Figure,plt.Axes]):
+    fig,ax=plt.subplots()
+    ax.imshow(potencial, cmap=cmap, origin="lower")
+    fig.suptitle(title)
+    fig.tight_layout()
+    return (fig,ax)
+
+def plot_eletric_vector_field(potencial: np.ndarray, step: int = 10) -> (tuple[plt.Figure,plt.Axes]):    
+    ny, nx = potencial.shape
+    x = np.arange(nx)
+    y = np.arange(ny)
+    X, Y = np.meshgrid(x, y)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection="3d")
+    rstride = max(1, nx // 100)
+    cstride = max(1, ny // 100)
+    ax.plot_wireframe(X, Y, potencial, rstride=rstride, cstride=cstride, color="black", linewidth=0.6)
+    ax.set_xlabel("x")
+    ax.set_ylabel("y")
+    ax.set_zlabel("V")
+    ax.set_title("Electric Potential (wireframe)")
+    ax.view_init(elev=30, azim=-60)
+    fig.tight_layout()
+    fig.savefig("results/eletric_potential_wire.jpg", dpi=200)
+
+    plt.close("all")
