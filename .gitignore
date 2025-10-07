@@ -2,6 +2,7 @@
 *.dat
 *.jpg
 *.png
+*.webp
 *.npy
 *.npz
 

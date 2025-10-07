@@ -1,32 +1,36 @@
-import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D  
+import numpy as np
+plt.style.use("ggplot")
+fig,axis=plt.subplots(ncols=2,figsize=(10,5),sharex=True)
 
-potencial = np.load("results/ex04.npy")
+df=pd.read_csv("results/ex07_comparison.csv")
 
-plt.figure()
-plt.imshow(potencial, cmap="hot")
-plt.colorbar()
-plt.title("Electric Potential (2D)")
+N_VALUES=np.linspace(min(df['N']),max(df['N']),100)
+
+axis[0].set_ylabel("Number of Iterations")
+jacobi_fitting=np.polyfit(df['N'],df['Jacobi Iterations'],2)
+axis[0].plot(N_VALUES,np.polyval(jacobi_fitting,N_VALUES),label=r"$aN^2+bN+c$",color="red")
+sor_fitting=np.polyfit(df['N'],df['SOR Iterations'],1)
+axis[0].plot(N_VALUES,np.polyval(sor_fitting,N_VALUES),label=r"$aN+b$",color="blue")
+axis[0].scatter(df["N"],df["Jacobi Iterations"],label="Jacobi",marker="o",color='red')
+axis[0].scatter(df["N"],df["SOR Iterations"],label="SOR",marker="o",color='blue')
+
+axis[1].set_ylabel("Execution Time (s)")
+jacobi_fitting=np.polyfit(df['N'],df['Jacobi Time (s)'],2)
+#axis[1].plot(N_VALUES,jacobi_fitting[0],N_VALUES),label=r"$aN^2+bN+c$",color="red")
+sor_fitting=np.polyfit(df['N'],df['SOR Time (s)'],1)
+axis[1].plot(N_VALUES,np.polyval(sor_fitting,N_VALUES),label=r"$aN+b$",color="blue")
+
+axis[1].scatter(df["N"],df["Jacobi Time (s)"],label="Jacobi",marker="o")
+axis[1].scatter(df["N"],df["SOR Time (s)"],label="SOR",marker="o")
 plt.tight_layout()
-plt.savefig("results/eletric_potential.jpg", dpi=200)
 
-ny, nx = potencial.shape
-x = np.arange(nx)
-y = np.arange(ny)
-X, Y = np.meshgrid(x, y)
+for ax in axis:
+    ax.legend()
+    ax.set_xlabel("N")
+    ax.set_yscale("log")
+    ax.set_xscale("log")
 
-fig = plt.figure()
-ax = fig.add_subplot(111, projection="3d")
-rstride = max(1, nx // 100)
-cstride = max(1, ny // 100)
-ax.plot_wireframe(X, Y, potencial, rstride=rstride, cstride=cstride, color="black", linewidth=0.6)
-ax.set_xlabel("x")
-ax.set_ylabel("y")
-ax.set_zlabel("V")
-ax.set_title("Electric Potential (wireframe)")
-ax.view_init(elev=30, azim=-60)
-fig.tight_layout()
-fig.savefig("results/eletric_potential_wire.jpg", dpi=200)
 
-plt.close("all")
+fig.savefig("results/ex07_comparison.png",dpi=300)

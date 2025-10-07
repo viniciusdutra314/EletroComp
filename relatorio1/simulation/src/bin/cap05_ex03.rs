@@ -11,7 +11,7 @@ fn main() {
     let smaller_initial_condition=EletricPotential { potential_array: 
         initial_condition.potential_array.slice(s![n/2..n, n/2..n]).to_owned(),
         fixed_points: initial_condition.fixed_points.slice(s![n/2..n, n/2..n]).to_owned()};
-    let result = simulate_laplace(smaller_initial_condition, jacobi_method,ex03_boundary_condition, tolerance);
+    let (result,_) = jacobi_method(smaller_initial_condition,ex03_boundary_condition, tolerance);
     save_array(&result, "ex03_potential.npy");
 
 }

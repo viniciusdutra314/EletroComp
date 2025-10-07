@@ -18,7 +18,8 @@
 		"vscode": {
 			"extensions": [
 				"myriad-dreamin.tinymist",
-				"Percy.vscode-numpy-viewer"
+				"Percy.vscode-numpy-viewer",
+				"mechatroner.rainbow-csv"
 			]
 		}
 	}
