@@ -3,11 +3,6 @@ use ndarray_npy::{write_npy};
 use num_traits::Float;
 use std::fs;
 
-#[derive(Clone,Debug)]
-pub struct EletricPotential<T: Float,D:Dimension> {
-    pub potential_array: Array<T,D>,
-    pub fixed_points: Array<bool,D>,
-}
 
 pub fn save_array<T,D>(array: &Array<T,D>, filename: &str)
 where

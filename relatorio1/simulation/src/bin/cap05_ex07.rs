@@ -1,4 +1,4 @@
-use eletrocomp::{boundary_conditions::*,definitions::*,methods::*,initial_conditions::*};
+use eletrocomp::{neighbor_averages::*,miscellaneous::*,methods::*,initial_conditions::*};
 use ndarray::s;
 use std::f64::consts::PI;
 use std::time::Instant;
@@ -20,17 +20,18 @@ fn main() -> std::io::Result<()> {
 
     for n in (50..500).step_by(50) {
         let alpha_factor=2.0/(1.0  +(PI/(n as f64)));
-        let initial_condition=create_two_capacitors(n, plate_separation,plate_length,plate_potential);
-        let smaller_initial_condition=EletricPotential { potential_array: 
-            initial_condition.potential_array.slice(s![n/2..n, n/2..n]).to_owned(),
-            fixed_points: initial_condition.fixed_points.slice(s![n/2..n, n/2..n]).to_owned()};
+        let (initial_potential,fixed_points)=create_two_capacitors(n, plate_separation,plate_length,plate_potential);
+        let initial_potential_view=initial_potential.slice(s![n/2..n, n/2..n]);
+        let fixed_points_view=fixed_points.slice(s![n/2..n, n/2..n]);
         
         let start_jacobi = Instant::now();
-        let (_jacobi_result, jacobi_iterations) = jacobi_method(smaller_initial_condition.clone(),ex03_boundary_condition, tolerance);
+        let (_jacobi_result, jacobi_iterations) = jacobi_method(initial_potential_view,
+            fixed_points_view,ex03_neighbor_average, tolerance);
         let jacobi_duration = start_jacobi.elapsed();
 
         let start_sor = Instant::now();
-        let (_relaxation_result, relaxation_iterations) = over_relaxation(smaller_initial_condition, ex03_boundary_condition, tolerance, alpha_factor);
+        let (_relaxation_result, relaxation_iterations) = over_relaxation(initial_potential_view,fixed_points_view, 
+            ex03_neighbor_average, tolerance, alpha_factor);
         let sor_duration = start_sor.elapsed();
 
         let speedup = jacobi_duration.as_secs_f64() / sor_duration.as_secs_f64();

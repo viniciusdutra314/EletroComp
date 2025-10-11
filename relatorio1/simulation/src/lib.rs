@@ -1,4 +1,4 @@
-pub mod definitions;
+pub mod miscellaneous;
 pub mod initial_conditions;
-pub mod boundary_conditions;
+pub mod neighbor_averages;
 pub mod methods;

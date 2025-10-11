@@ -1,4 +1,4 @@
-use crate::definitions::*;
+use crate::miscellaneous::*;
 use image::{ImageReader};
 use ndarray::{s, Array2, Ix2};
 use num_traits::Float;
@@ -6,7 +6,7 @@ use num_traits::Float;
 pub fn create_initial_condition_fig5_4<T: Float>(
     n: usize,
     quadrado_interno: f64,
-) -> EletricPotential<T,Ix2> {
+) -> (Array2<T>, Array2<bool>) {
     let lado_quadrado = ((n as f64) * quadrado_interno).round() as usize;
     let l_0 = n / 2 - lado_quadrado / 2;
     let l_f = n / 2 + lado_quadrado / 2;
@@ -24,10 +24,7 @@ pub fn create_initial_condition_fig5_4<T: Float>(
             fixed_points[(i, j)] = true;
         }
     }
-    return EletricPotential {
-        potential_array: potential,
-        fixed_points,
-    };
+    return (potential, fixed_points);
 }
 
 pub fn create_two_capacitors<T: Float>(
@@ -35,7 +32,7 @@ pub fn create_two_capacitors<T: Float>(
     plate_separation: T,
     plate_length: T,
     plate_potential: T,
-) -> EletricPotential<T,Ix2> {
+) -> (Array2<T>, Array2<bool>) {
     let mut potential = Array2::<T>::from_elem((n, n), T::zero());
     let mut fixed_points = Array2::<bool>::from_elem((n, n), false);
     for i in 0..n {
@@ -63,12 +60,9 @@ pub fn create_two_capacitors<T: Float>(
         potential[(mid + plate_separation / 2, i)] = -plate_potential;
         fixed_points[(mid + plate_separation / 2, i)] = true;
     }
-    return EletricPotential {
-        potential_array: potential,
-        fixed_points,
-    };
+    return (potential, fixed_points);
 }
-pub fn generic_image<T: Float>(path: &str) -> EletricPotential<T,Ix2> {
+pub fn generic_image<T: Float>(path: &str) -> (Array2<T>, Array2<bool>) {
     let img = ImageReader::open(path)
         .unwrap()
         .decode()
@@ -92,8 +86,5 @@ pub fn generic_image<T: Float>(path: &str) -> EletricPotential<T,Ix2> {
             }
         }
     }
-    return EletricPotential {
-        potential_array: potential,
-        fixed_points,
-    };
+    return (potential, fixed_points);
 }
