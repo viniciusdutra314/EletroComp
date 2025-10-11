@@ -11,6 +11,7 @@ fn main() {
     let (result, _) = jacobi_method(
         initial_condition.view(),
         fixed_points.view(),
+        None,
         simple_neighbor_average,
         tolerance,
     );

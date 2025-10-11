@@ -1,7 +1,28 @@
 use crate::miscellaneous::*;
 use image::{ImageReader};
-use ndarray::{s, Array2, Ix2};
+use ndarray::{s, Array, Array2, Dimension, IxDyn, ShapeBuilder};
 use num_traits::Float;
+
+pub fn create_hypercube<T,D>(n: usize) -> (Array<T, D>,Array<bool,D>)
+where
+    T:Float,
+    D:Dimension
+{
+    let ndim=D::NDIM.unwrap();
+    let shape_vec: Vec<usize> = vec![n; ndim];
+    let mut voltage_array = Array::from_elem(shape_vec.clone(), T::one());
+    let mut fixed_points = Array::from_elem(shape_vec.clone(), false);
+    for (indices, fixed_element) in fixed_points.indexed_iter_mut() {
+        if indices.slice().iter().any(|&i| i == 0 || i == n-1) {
+            *fixed_element = true;
+            voltage_array[indices] = T::zero();
+        }
+    }
+    let voltage_array=voltage_array.into_dimensionality::<D>().unwrap();
+    let fixed_points=fixed_points.into_dimensionality::<D>().unwrap();
+    return (voltage_array,fixed_points);
+}
+
 
 pub fn create_initial_condition_fig5_4<T: Float>(
     n: usize,

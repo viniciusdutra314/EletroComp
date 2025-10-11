@@ -11,6 +11,7 @@ fn main() {
     let (result, _) = jacobi_method(
         initial_potential.slice(s![n / 2..n, n / 2..n]),
         fixed_points.slice(s![n / 2..n, n / 2..n]),
+        None,
         ex02_neighbor_average,
         tolerance,
     );
