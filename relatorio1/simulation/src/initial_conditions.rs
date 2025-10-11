@@ -1,12 +1,12 @@
 use crate::definitions::*;
-use image::{ImageReader, codecs::webp};
-use ndarray::{Array2,s};
+use image::{ImageReader};
+use ndarray::{s, Array2, Ix2};
 use num_traits::Float;
 
 pub fn create_initial_condition_fig5_4<T: Float>(
     n: usize,
     quadrado_interno: f64,
-) -> EletricPotential<T> {
+) -> EletricPotential<T,Ix2> {
     let lado_quadrado = ((n as f64) * quadrado_interno).round() as usize;
     let l_0 = n / 2 - lado_quadrado / 2;
     let l_f = n / 2 + lado_quadrado / 2;
@@ -35,7 +35,7 @@ pub fn create_two_capacitors<T: Float>(
     plate_separation: T,
     plate_length: T,
     plate_potential: T,
-) -> EletricPotential<T> {
+) -> EletricPotential<T,Ix2> {
     let mut potential = Array2::<T>::from_elem((n, n), T::zero());
     let mut fixed_points = Array2::<bool>::from_elem((n, n), false);
     for i in 0..n {
@@ -68,7 +68,7 @@ pub fn create_two_capacitors<T: Float>(
         fixed_points,
     };
 }
-pub fn generic_image<T: Float>(path: &str) -> EletricPotential<T> {
+pub fn generic_image<T: Float>(path: &str) -> EletricPotential<T,Ix2> {
     let img = ImageReader::open(path)
         .unwrap()
         .decode()
