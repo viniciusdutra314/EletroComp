@@ -19,7 +19,9 @@
 			"extensions": [
 				"myriad-dreamin.tinymist",
 				"Percy.vscode-numpy-viewer",
-				"mechatroner.rainbow-csv"
+				"mechatroner.rainbow-csv",
+				"streetsidesoftware.code-spell-checker",
+				"streetsidesoftware.code-spell-checker-portuguese-brazilian"
 			]
 		}
 	}

@@ -4,7 +4,7 @@ use eletrocomp::{
 use ndarray::s;
 
 fn main() {
-    let n = 100;
+    let n = 500;
     let quadrado_interno = 0.2;
     let tolerance = 1e-5;
     let (initial_potential, fixed_points) = create_initial_condition_fig5_4(n, quadrado_interno);

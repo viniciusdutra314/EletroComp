@@ -1,5 +1,9 @@
 {
     "rust-analyzer.linkedProjects": [
         "relatorio1/simulation/Cargo.toml"
+    ],
+    "cSpell.words": [
+        "booleanos",
+        "ndarray"
     ]
 }

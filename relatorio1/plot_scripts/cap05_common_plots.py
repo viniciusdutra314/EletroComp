@@ -2,10 +2,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def plot_potential_2d_colormap(potencial: np.ndarray,title:str,cmap:str) -> (tuple[plt.Figure,plt.Axes]):
+def plot_potential_2d_colormap(potencial: np.ndarray,cmap:str) -> (tuple[plt.Figure,plt.Axes]):
     fig,ax=plt.subplots()
-    ax.imshow(potencial, cmap=cmap, origin="lower")
-    fig.suptitle(title)
+    im = ax.imshow(potencial, cmap=cmap, origin="lower")
+    fig.colorbar(im, ax=ax)
     fig.tight_layout()
     return (fig,ax)
 

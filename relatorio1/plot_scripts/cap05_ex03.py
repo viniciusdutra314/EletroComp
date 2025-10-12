@@ -10,5 +10,5 @@ full_array[:h, w:] = -small_array[::-1,::]
 full_array[:h, :w] = -small_array[::-1, ::-1]
 
 full_array=np.rot90(full_array)
-fig,ax=plot_potential_2d_colormap(full_array,"Eletric Potential","bwr")
+fig,ax=plot_potential_2d_colormap(full_array,"bwr")
 fig.savefig("results/ex03_eletric_potential_colormap.jpg", dpi=200)

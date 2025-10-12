@@ -2,7 +2,7 @@ use eletrocomp::{neighbor_averages::*, initial_conditions::*, methods::*, miscel
 use ndarray::s;
 
 fn main() {
-    let n = 200;
+    let n = 500;
     let plate_separation = 0.2;
     let plate_potential = 1.0;
     let plate_length = 0.3;
