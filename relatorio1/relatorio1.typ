@@ -5,6 +5,7 @@
 #codly(languages:codly-languages)
 #set page(numbering: "1", number-align: center)
 #set text(lang: "pt")
+#set par(justify: true)
 
 = Equação De Laplace
 
@@ -215,13 +216,15 @@ raw(read("simulation/src/neighbor_averages.rs"),lang: "rust",block:true),caption
 
 
 #codly-range(3,end:11)
-#figure(
-raw(read("plot_scripts/cap05_ex02.py"),lang: "rust",block:true),
-caption: "Condições de contorno exercício 2")
 
 Com somente o quadrante superior direito e as simetrias do problema, podemos 
 criar a imagem toda realizando uma "colagem" de quatro cópias do array menor
 realizando rotações
+#figure(
+raw(read("plot_scripts/cap05_ex02.py"),lang: "python",block:true),
+caption: "Colagem exercício 2")
+
+
 #figure(
   image("results/ex02_eletric_potential_entire.jpg"),
   caption: "Potencial elétrico figura 5.4 quadrante direito superior (colagens)"
@@ -247,13 +250,12 @@ um slicing das condições inicias e então realizar a colagem na visualização
 
 
 #figure(
-  image("results/ex03_eletric_potential_colormap.jpg"),
-  caption: "Placas paralelas figura 5.6"
-)
-
-
-#figure(
-  image("results/ex03_eletric_potential_wire.jpg"),
+  grid(
+    columns: (auto, auto),
+    gutter: 1em,
+    image("results/ex03_eletric_potential_colormap.jpg",width: 110%),
+    image("results/ex03_eletric_potential_wire.jpg",width: 110%),
+  ),
   caption: "Placas paralelas figura 5.6"
 )
 
@@ -273,15 +275,23 @@ Investigate how the magnitude of the fringing field of a parallel plate capacito
 )
 
 #figure(
-  image("results/teste.jpg"),
-  caption: "Placas paralelas com variados espaçamentos"
+  image("results/ex04_placas_separadas.jpg"),
+  caption: "Placas paralelas com variados espaçamentos (Campo Vetorial)"
 )
 Chamemos o espaçamento entre as placas de $L$ e o tamanho das placas de $h$. O regime do capacitor 
 "infinito" ocorre quando $h>>L$. Nesse regime, o campo elétrico entre as placas deve ser aproximadamente
 uniforme com direção do capacitor positivo ao negativo, além disso, o campo fora deve ser zero.
 
-Como o colormap é compartilhado entre as figuras, fica evidente que conforme as placas ficam mais próximas
-o potencial fica cada vez mais branco fora das placas, ou seja, $V arrow 0$
+
+
+#figure(
+  image("results/ex04_wireframes.jpg"),
+  caption: "Placas paralelas com variados espaçamentos (Superfície)"
+)<figure:superficie_capacitor>
+
+Com o gráfico de superfície da @figure:superficie_capacitor, é mais fácil de perceber que conforme
+as placas ficam mais próximas, o campo elétrico fica concentrado entre as placas.
+
 #pagebreak()
 == 5.5
 #box(
@@ -435,14 +445,22 @@ Primeiramente, é necessário discretizar a equação de Poisson em coordenadas 
 
 == 5.10
 
+
 #box(
   fill: luma(240),
   inset: 10pt,     
   outset: 5pt,    
   radius: 3pt,   
   [
- Investigate the performance of the simultaneous over-relaxation algorithm for a point charge in two and three dimensions. Hint: In two dimensions we know the optimum choice of the over-relaxation parameter, α in (5.18). In three dimensions you should determine the optimum choice of this parameter by observing the speed of convergence for different values of α. How sensitive is the convergence to the value of α?
+ Investigate the performance of the simultaneous over-relaxation algorithm for a point charge in two and three dimensions. Hint: In two dimensions we know the optimum choice of the over-relaxation parameter, $alpha$ in (5.18). In three dimensions you should determine the optimum choice of this parameter by observing the speed of convergence for different values of $alpha$. How sensitive is the convergence to the value of $alpha$?
   ]
 )
+Teoricamente poderíamos ter considerado $alpha in (1,2)$, mas amostrando alguns pontos nesse intervalo,
+o método tem uma convergência muito lenta, então o gráfico foi feito perto do valor ótimo $alpha in (1.8,2.0)$
 
+Curiosamente, o valor de $alpha$ ótimo ocorre aproximadamente no mesmo ponto, tanto no caso bidimensional como tridimensional.
+#figure(
+  image("results/ex10_alpha.png"),
+  caption: "Alpha em 2D e 3D"
+)
 

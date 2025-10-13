@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib import cm
 
 
 def plot_potential_2d_colormap(potencial: np.ndarray,cmap:str) -> (tuple[plt.Figure,plt.Axes]):
@@ -14,12 +15,17 @@ def plot_wireframe(potencial: np.ndarray, step: int = 10) -> (tuple[plt.Figure,p
     x = np.arange(nx)
     y = np.arange(ny)
     X, Y = np.meshgrid(x, y)
-
     fig = plt.figure()
     ax = fig.add_subplot(111, projection="3d")
+    norm = plt.Normalize(potencial.min(), potencial.max())
+    colors = cm.bwr(norm(potencial))
+    
     rstride = max(1, nx // 100)
     cstride = max(1, ny // 100)
-    ax.plot_wireframe(X, Y, potencial, rstride=rstride, cstride=cstride, color="black", linewidth=0.6)
+    
+    # plot_surface can be used with a colormap
+    ax.plot_surface(X, Y, potencial, rstride=rstride, cstride=cstride, facecolors=colors, shade=False)
+    
     ax.set_xlabel("x")
     ax.set_ylabel("y")
     ax.set_zlabel("V")

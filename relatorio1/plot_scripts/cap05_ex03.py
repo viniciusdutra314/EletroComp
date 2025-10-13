@@ -1,5 +1,7 @@
 import numpy as np
 from cap05_common_plots import plot_potential_2d_colormap,plot_wireframe
+import matplotlib.pyplot as plt
+plt.style.use("ggplot")
 small_array=np.load("results/ex03_potential.npy")
 h, w = small_array.shape
 full_array = np.zeros((2 * h, 2 * w))
