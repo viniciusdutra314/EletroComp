@@ -1,32 +1,51 @@
-import numpy as np
+from cap05_common_plots import *
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D  
+import numpy as np
+import pandas as pd
 
-potencial = np.load("results/ex04.npy")
+plt.style.use('ggplot')
 
-plt.figure()
-plt.imshow(potencial, cmap="hot")
-plt.colorbar()
-plt.title("Electric Potential (2D)")
-plt.tight_layout()
-plt.savefig("results/eletric_potential.jpg", dpi=200)
+df_f32=pd.read_csv('results/ex05_comparison_f32.csv')
+df_f64=pd.read_csv('results/ex05_comparison_f64.csv')
 
-ny, nx = potencial.shape
-x = np.arange(nx)
-y = np.arange(ny)
-X, Y = np.meshgrid(x, y)
+tolerance_f32=-np.log10(df_f32['Tolerance'])
+jacobi_it_f32=df_f32['Jacobi-It']
+sor_it_f32=df_f32['Sor-It']
+jacobi_err_f32=df_f32['Jacobi-Err']
+sor_err_f32=df_f32['Sor-Err']
 
-fig = plt.figure()
-ax = fig.add_subplot(111, projection="3d")
-rstride = max(1, nx // 100)
-cstride = max(1, ny // 100)
-ax.plot_wireframe(X, Y, potencial, rstride=rstride, cstride=cstride, color="black", linewidth=0.6)
-ax.set_xlabel("x")
-ax.set_ylabel("y")
-ax.set_zlabel("V")
-ax.set_title("Electric Potential (wireframe)")
-ax.view_init(elev=30, azim=-60)
-fig.tight_layout()
-fig.savefig("results/eletric_potential_wire.jpg", dpi=200)
+tolerance_f64=-np.log10(df_f64['Tolerance'])
+jacobi_it_f64=df_f64['Jacobi-It']
+sor_it_f64=df_f64['Sor-It']
+jacobi_err_f64=df_f64['Jacobi-Err']
+sor_err_f64=df_f64['Sor-Err']
 
-plt.close("all")
+
+fig,axis=plt.subplots(ncols=2,figsize=(12,6))
+
+axis[0].set_xlabel(r'$p$ dígitos significativos')
+axis[0].set_ylabel('Número de iterações')
+axis[0].set_yscale('log')
+
+axis[0].plot(tolerance_f32,jacobi_it_f32,label='Jacobi (f32)',marker='o', linestyle='-')
+axis[0].plot(tolerance_f32,sor_it_f32,label='SOR (f32)',marker='s', linestyle='-')
+
+axis[0].plot(tolerance_f64,jacobi_it_f64,label='Jacobi (f64)',marker='o', linestyle='--')
+axis[0].plot(tolerance_f64,sor_it_f64,label='SOR (f64)',marker='s', linestyle='--')
+
+
+axis[1].set_xlabel(r'$p$ dígitos significativos')
+axis[1].set_ylabel(r'$\sum |V_{ideal} - V|$')
+axis[1].set_yscale('log')
+
+axis[1].plot(tolerance_f32,jacobi_err_f32,label='Jacobi (f32)',marker='o', linestyle='-')
+axis[1].plot(tolerance_f32,sor_err_f32,label='SOR (f32)',marker='s', linestyle='-')
+
+axis[1].plot(tolerance_f64,jacobi_err_f64,label='Jacobi (f64)',marker='o', linestyle='--')
+axis[1].plot(tolerance_f64,sor_err_f64,label='SOR (f64)',marker='s', linestyle='--')
+
+
+handles, labels = axis[0].get_legend_handles_labels()
+fig.legend(handles, labels, loc='upper center', ncol=2)
+
+fig.savefig('results/ex05_comparison.png',dpi=300)

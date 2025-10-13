@@ -5,6 +5,8 @@ edition = "2024"
 
 [dependencies]
 contracts = "0.6.6"
+f128 = "0.2.9"
+half = {version ="2.7.0",features = ["num-traits"]}
 image = "0.25.8"
 ndarray = { version = "0.16.1"}
 ndarray-npy = "0.9.1"

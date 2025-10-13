@@ -1,7 +1,11 @@
 #import "@preview/codly:1.3.0": *
+#import "@preview/tabut:1.0.2"
 #import "@preview/codly-languages:0.1.1": *
 #show: codly-init.with()
 #codly(languages:codly-languages)
+#set page(numbering: "1", number-align: center)
+#set text(lang: "pt")
+
 = Equação De Laplace
 
 $nabla^2 V=(partial^2 V)/(partial x^2)+(partial^2 V)/(partial y^2)+(partial^2 V)/(partial z^2)=0$
@@ -15,6 +19,10 @@ Jogando essa aproximação na equação de Laplace
 
 $V(x,y,z)=1/6 (V(x+Delta x,y,z)+V(x-Delta x,y,z)+V(x,y+Delta y,z)+V(x,y -Delta y,z)
   + V(x,y,z+Delta z)+V(x,y,z-Delta z))$
+
+#pagebreak()
+ #outline()
+#pagebreak()
 
 = Implementação em Rust
 
@@ -86,7 +94,7 @@ NeighborAverage: Fn(&Array<T, D>, Index<D>) -> T
 
 Essas médias se encontram em *`simulation/src/neighbor_averages.rs`*
 
-== Métodos
+=== Métodos
 Para aplicar um método é necessário as condições iniciais (potencial inicial, quais pontos são fixos e a densidade de carga), a função que calcula a média da vizinhança e uma variação máxima de uma iteração para a outra.
 
 A função retorna o potencial elétrico final e o número de iterações
@@ -109,7 +117,8 @@ Como só é introduzido cargas elétricos nos últimos exercícios, a densidade 
 
 Os métodos se encontram em *`simulation/src/methods.rs`*
 
-= Exercício 01
+= Exercícios
+== 5.1
 #box(
   fill: luma(240),
   inset: 10pt,     
@@ -122,9 +131,15 @@ Solve for the potential in the prism geometry in Figure 5.4.
 
 
 #figure(
-  image("results/ex01_potential_small.jpg"),
+  grid(
+    columns: (auto,auto),
+    gutter: 10em,
+    image("results/ex01_potential_small.jpg", width: 150%),
+    image("results/ex01_potential_small_wire.jpg", width: 150%),
+  ),
   caption: "Potencial elétrico figura 5.4"
 )
+
 Esse exercício consiste em criar um grid $N times N$ com bordas de potencial fixo
 $V=0$ e um quadrado interno com $V=1$, como  o esperado, a tensão lentamente decai
 lentamente do quadrado até a borda.
@@ -134,7 +149,12 @@ esférica, mas isso não é verdade, com um grande grande o suficiente para fica
 é possível ver que o problema só tem a simetria dos quadrantes
 
 #figure(
-  image("results/ex01_potential_big.jpg"),
+  grid(
+    columns: (auto,auto),
+    gutter: 10em,
+    image("results/ex01_potential_big.jpg", width: 150%),
+    image("results/ex01_potential_big_wire.jpg", width: 150%),
+  ),
   caption: "Potencial elétrico figura 5.4"
 )
 
@@ -142,7 +162,8 @@ esférica, mas isso não é verdade, com um grande grande o suficiente para fica
 #figure(
 raw(read("simulation/src/bin/cap05_ex01.rs"),lang: "rust",block:true),caption: "Código exercício 1")
 
-= Exercício 2
+#pagebreak()
+== 5.2
 
 #box(
   fill: luma(240),
@@ -206,7 +227,8 @@ realizando rotações
   caption: "Potencial elétrico figura 5.4 quadrante direito superior (colagens)"
 )
 
-
+#pagebreak()
+== 5.3
 #box(
   fill: luma(240),
   inset: 10pt,     
@@ -229,6 +251,14 @@ um slicing das condições inicias e então realizar a colagem na visualização
   caption: "Placas paralelas figura 5.6"
 )
 
+
+#figure(
+  image("results/ex03_eletric_potential_wire.jpg"),
+  caption: "Placas paralelas figura 5.6"
+)
+
+#pagebreak()
+== 5.4
 #box(
   fill: luma(240),
   inset: 10pt,     
@@ -242,6 +272,18 @@ Investigate how the magnitude of the fringing field of a parallel plate capacito
   ]
 )
 
+#figure(
+  image("results/teste.jpg"),
+  caption: "Placas paralelas com variados espaçamentos"
+)
+Chamemos o espaçamento entre as placas de $L$ e o tamanho das placas de $h$. O regime do capacitor 
+"infinito" ocorre quando $h>>L$. Nesse regime, o campo elétrico entre as placas deve ser aproximadamente
+uniforme com direção do capacitor positivo ao negativo, além disso, o campo fora deve ser zero.
+
+Como o colormap é compartilhado entre as figuras, fica evidente que conforme as placas ficam mais próximas
+o potencial fica cada vez mais branco fora das placas, ou seja, $V arrow 0$
+#pagebreak()
+== 5.5
 #box(
   fill: luma(240),
   inset: 10pt,     
@@ -255,7 +297,25 @@ Study the accuracy of the relaxation method by solving any of the problems consi
   ]
 )
 
+É impossível falar da precisão numérica de um método sem se referir ao tipo numérico usado,
+como o tipo numérico é genérico no código, vamos comparar os dois floats mais comuns, precisão
+simples (f32) e precisão dupla (f64), ambos tipos do Rust seguem o padrão IEEE 754
+#figure(
+  image("results/ex05_comparison.png"),
+  caption: "Precisão dos métodos em f32 e f64 (capacitor de placas paralelas N=500)"
+)<fig:f32_f64>
 
+A @fig:f32_f64 mostra que os tipos f32/f64 não fazem muita diferença até $p=5$, isso ocorre porque 
+o $epsilon_(f 3 2 ) approx 10^(-7)$ enquanto $epsilon_(f 6 4) approx 2 times 10^(-16)$, então para precisões altas o f32
+começa a já perder precisão pois ele não consegue representar a diferença entre dois números muito próximos.
+
+O $V_(i d e a l)$ foi calculado usando precisão quadrupla (f128) com erro $10^(-30)$ para ser a referência. A 
+diferença entre essa referência e o valor calculado foi feita acumulando o absoluto da diferença entre os arrays.
+É visível que em f64 o $V(x,y)$ resultante linearmente converge para $V_(i d e a l)$, enquanto em f32 existe um ponto
+de estagnação
+
+#pagebreak()
+== 5.6
 #box(
   fill: luma(240),
   inset: 10pt,     
@@ -268,6 +328,8 @@ Study the accuracy of the relaxation method by solving any of the problems consi
  Calculate the electric potential and field near a lightning rod. Model this as a very long and narrow metal rod held at a high voltage, with one end near a conducting plane. Of special interest is the field near the tip of the rod.
   ]
 )
+#pagebreak()
+== 5.7
 
 #box(
   fill: luma(240),
@@ -282,8 +344,35 @@ Study the accuracy of the relaxation method by solving any of the problems consi
 
   ]
 )
+Rodando o mesmo código para diferentes valores de N, foi salvo em um .csv a quantidade 
+de iterações e o tempo de execução em segundos, como consta na @ex07-data.
+
+#let data = csv("results/ex07_comparison.csv")
+
+#figure(align(center, table(
+  columns: data.first().len(),
+  align: center + horizon,
+  stroke: 0.4pt,
+  ..data.flatten()
+)),caption: "Dados Jacobi vs SOR",
+)<ex07-data>
+
+Aplicando um fitting de $O(n^2)$ no método de Jacobi e um $O(n)$ no SOR fica evidente que 
+os métodos tem o comportamento assintótico esperado. Uma vez que $n^2/n=n$ o speedup é esperado
+que cresça linearmente, ou seja, quanto maior o problema mais vantajoso é o método de SOR sobre o Jacobi.
+
+Em termos de memória 
 
 
+#figure(
+  image("results/ex07_comparison.png"),
+  caption: "Performance Jacobi vs SOR"
+)
+
+
+
+#pagebreak()
+== 5.8
 #box(
   fill: luma(240),
   inset: 10pt,     
@@ -296,8 +385,9 @@ Study the accuracy of the relaxation method by solving any of the problems consi
     Extend our treatment of a point charge in a metal box to deal with the case in which the charge is located near one face of the box. Study how the equipotential contours are affected by the proximity of a grounded surface (the face of the box).
   ]
 )
+#pagebreak()
 
-= Exercício 5.9
+== 5.9
 #box(
   fill: luma(240),
   inset: 10pt,     
@@ -341,8 +431,9 @@ Primeiramente, é necessário discretizar a equação de Poisson em coordenadas 
   block:true,
   lang:"python"
 ),caption: "Discretização da equação de Poisson")
+#pagebreak()
 
-== Exercício 5.10
+== 5.10
 
 #box(
   fill: luma(240),

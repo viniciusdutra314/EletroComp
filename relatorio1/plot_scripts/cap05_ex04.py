@@ -1,38 +1,57 @@
 import numpy as np
+import os
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D  
+from cap05_common_plots import plot_potential_2d_colormap,plot_wireframe
 
-potencial = np.load("../results/ex04.npy")
-potencial = np.rot90(potencial)
-E_y,E_x=np.gradient(-potencial)
 
-N=20
-X=np.arange(0,potencial.shape[0])
-Y=np.arange(0,potencial.shape[1])
-plt.quiver(X[::N],Y[::N],E_x[::N,::N],E_y[::N,::N])
+plates_arrays=[(f,np.load(os.path.join("results",f))) for f in os.listdir("results/") if f.startswith("ex04") and f.endswith(".npy")]
+plates_arrays.sort(key=lambda tuple: tuple[0])
+fig, ax = plt.subplots(2, 2, figsize=(15, 15))
+axes = ax.flatten()
+for i, (f, small_arr) in enumerate(reversed(plates_arrays)):
+    h, w = small_arr.shape
+    full_array = np.zeros((2 * h, 2 * w))
+    full_array[h:, w:] = small_arr
+    full_array[h:, :w] = small_arr[:, ::-1]
+    full_array[:h, w:] = -small_arr[::-1, :]
+    full_array[:h, :w] = -small_arr[::-1, ::-1]
+    full_array = np.rot90(full_array)
+    Ey, Ex = np.gradient(-full_array)
+    h_full, w_full = full_array.shape
+    x, y = np.meshgrid(np.arange(0, w_full, 1), np.arange(0, h_full, 1))
+    skip = 20
+    
+    current_ax = axes[i]
+    current_ax.quiver(x[::skip, ::skip], y[::skip, ::skip], Ex[::skip, ::skip], Ey[::skip, ::skip], color='black')
+    current_ax.imshow(full_array, cmap="bwr")
 
-im=plt.imshow(potencial, cmap="bwr",origin="lower")
-plt.colorbar(im)
-plt.title("Electric Potential (2D)")
-plt.tight_layout()
-plt.savefig("../results/ex04_eletric_potential.jpg", dpi=200)
+    # Create an inset axis for magnification
+    axins = current_ax.inset_axes([0.55, 0.55, 0.4, 0.4])
 
-ny, nx = potencial.shape
-x = np.arange(nx)
-y = np.arange(ny)
-X, Y = np.meshgrid(x, y)
+    # Define the zoom region (center of the array)
+    zoom_size = h // 4
+    x1, x2 = w - zoom_size, w + zoom_size
+    y1, y2 = h - zoom_size, h + zoom_size
+    
+    # Apply the zoom
+    axins.set_xlim(x1, x2)
+    axins.set_ylim(y2, y1) # Inverted y-axis for imshow
+    axins.set_xticklabels([])
+    axins.set_yticklabels([])
 
-fig = plt.figure()
-ax = fig.add_subplot(111, projection="3d")
-rstride = max(1, nx // 100)
-cstride = max(1, ny // 100)
-ax.plot_wireframe(X, Y, potencial, rstride=rstride, cstride=cstride, color="black", linewidth=0.6)
-ax.set_xlabel("x")
-ax.set_ylabel("y")
-ax.set_zlabel("V")
-ax.set_title("Electric Potential (wireframe)")
-ax.view_init(elev=30, azim=-60)
+    # Plot the same data on the inset axis
+    inset_skip = 4
+    axins.quiver(x[y1:y2:inset_skip, x1:x2:inset_skip], y[y1:y2:inset_skip, x1:x2:inset_skip],
+                 Ex[y1:y2:inset_skip, x1:x2:inset_skip], Ey[y1:y2:inset_skip, x1:x2:inset_skip],
+                 color='black')
+    axins.imshow(full_array, cmap="bwr", extent=[0, w_full, h_full, 0])
+
+    # Draw a box indicating the zoomed area
+    current_ax.indicate_inset_zoom(axins, edgecolor="green")
+
+# Hide any unused subplots if there are fewer than 9 arrays
+for j in range(i + 1, len(axes)):
+    axes[j].axis('off')
+
 fig.tight_layout()
-fig.savefig("../results/ex04_eletric_potential_wire.jpg", dpi=200)
-
-plt.close("all")
+fig.savefig("results/teste.jpg",dpi=300)

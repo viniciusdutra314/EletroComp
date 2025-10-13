@@ -9,7 +9,7 @@ def plot_potential_2d_colormap(potencial: np.ndarray,cmap:str) -> (tuple[plt.Fig
     fig.tight_layout()
     return (fig,ax)
 
-def plot_eletric_vector_field(potencial: np.ndarray, step: int = 10) -> (tuple[plt.Figure,plt.Axes]):    
+def plot_wireframe(potencial: np.ndarray, step: int = 10) -> (tuple[plt.Figure,plt.Axes]):    
     ny, nx = potencial.shape
     x = np.arange(nx)
     y = np.arange(ny)
@@ -23,9 +23,6 @@ def plot_eletric_vector_field(potencial: np.ndarray, step: int = 10) -> (tuple[p
     ax.set_xlabel("x")
     ax.set_ylabel("y")
     ax.set_zlabel("V")
-    ax.set_title("Electric Potential (wireframe)")
     ax.view_init(elev=30, azim=-60)
     fig.tight_layout()
-    fig.savefig("results/eletric_potential_wire.jpg", dpi=200)
-
-    plt.close("all")
+    return (fig,ax)

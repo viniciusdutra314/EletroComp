@@ -111,7 +111,7 @@ where
     unreachable!();
 }
 
-#[requires(error_tolerance > T::zero(),"error_tolerance must be positive")]
+#[requires(error_tolerance >= T::zero(),"error_tolerance must be positive")]
 #[requires(initial_potential.shape() == fixed_points.shape(),"initial_potential and fixed_points must have the same shape")]
 #[ensures(ret.0.shape() == initial_potential.shape(),"result array must have the same shape as initial_potential")]
 pub fn over_relaxation<T, D, NeighborAvg>(
