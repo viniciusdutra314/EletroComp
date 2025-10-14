@@ -24,6 +24,26 @@ where
 }
 
 
+pub fn create_eletric_rod<T:Float>(n:usize,rod_length:T) -> (Array2<T>,Array2<bool>)
+{
+    let rod_length=(rod_length*(T::from(n).unwrap())).round().to_usize().unwrap();
+    let mut potential = Array2::<T>::from_elem((n, n), T::zero());
+    let mut fixed_points = Array2::<bool>::from_elem((n, n), false);
+    for i in 0..n {
+        fixed_points[(i, 0)] = true;
+        potential[(i, 0)] = T::one();
+        fixed_points[(i, n - 1)] = true;
+        fixed_points[(0, i)] = true;
+        fixed_points[(n - 1, i)] = true;
+    }
+    let mid=n/2;
+    for i in 10..rod_length {
+        potential[(mid, i)] = T::from(10.0).unwrap();
+        fixed_points[(mid, i)] = true;
+    }
+    return (potential, fixed_points);
+}
+
 pub fn create_initial_condition_fig5_4<T: Float>(
     n: usize,
     quadrado_interno: f64,

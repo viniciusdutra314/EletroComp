@@ -1,5 +1,5 @@
 use eletrocomp::{
-    initial_conditions::*, methods::jacobi_method, miscellaneous::*, neighbor_averages::*,
+    initial_conditions::*, methods::jacobi_method, miscellaneous::*, update_functions::*,
 };
 
 fn main() {

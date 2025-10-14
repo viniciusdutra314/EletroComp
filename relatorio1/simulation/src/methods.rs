@@ -1,5 +1,7 @@
 use contracts::{ensures, requires};
-use ndarray::{Array, ArrayView, Dimension, IntoDimension, NdIndex, indices_of};
+use ndarray::{
+    ArcArray, Array, ArrayView, ArrayView1, Dimension, IntoDimension, Ix1, NdIndex, indices_of,
+};
 use num_traits::Float;
 
 fn jacobi_method_dispatcher<T, D, UpdateFunc>(
@@ -97,7 +99,7 @@ where
         let mut new_delta_v = T::zero();
         for index in indices_of(&v) {
             if !fixed_points[index] {
-                let delta_v = update_func(&v, index.into_dimension())- v[index];
+                let delta_v = update_func(&v, index.into_dimension()) - v[index];
                 let v_new = alpha_factor * delta_v + v[index];
                 new_delta_v = new_delta_v + (v_new - v[index]).abs();
                 v[index] = v_new;
@@ -151,4 +153,28 @@ where
             );
         }
     }
+}
+
+pub fn over_relaxation_spherical_coordinates(
+    initial_potential: ArrayView1<f64>,
+    fixed_points: ArrayView1<bool>,
+    charge_density: ArrayView1<f64>,
+    error_tolerance: f64,
+    alpha_factor: f64,
+) -> (Array<f64, Ix1>, usize) {
+    let update_function = |v: &Array<f64, Ix1>, idx: Ix1| {
+        match idx[0] {
+            0 => v[1],
+            r => charge_density[idx]+
+            0.5*(v[r + 1] * (1.0 + 1.0 / (r as f64))
+            + v[r - 1] * (1.0 - 1.0 / (r as f64)))
+        }
+    };
+    return over_relaxation_dispatcher(
+        initial_potential,
+        fixed_points,
+        update_function,
+        error_tolerance,
+        alpha_factor,
+    );
 }

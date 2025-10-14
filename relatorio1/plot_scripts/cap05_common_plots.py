@@ -22,8 +22,6 @@ def plot_wireframe(potencial: np.ndarray, step: int = 10) -> (tuple[plt.Figure,p
     
     rstride = max(1, nx // 100)
     cstride = max(1, ny // 100)
-    
-    # plot_surface can be used with a colormap
     ax.plot_surface(X, Y, potencial, rstride=rstride, cstride=cstride, facecolors=colors, shade=False)
     
     ax.set_xlabel("x")

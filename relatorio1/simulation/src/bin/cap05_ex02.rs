@@ -1,5 +1,5 @@
 use eletrocomp::{
-    neighbor_averages::*, initial_conditions::*, methods::jacobi_method, miscellaneous::*,
+    update_functions::*, initial_conditions::*, methods::jacobi_method, miscellaneous::*,
 };
 use ndarray::s;
 

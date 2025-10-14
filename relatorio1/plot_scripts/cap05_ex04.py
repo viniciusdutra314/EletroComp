@@ -21,36 +21,28 @@ for i, (f, small_arr) in enumerate(reversed(plates_arrays)):
     skip = 100
     
     current_ax = axes[i]
-    current_ax.quiver(x[::skip, ::skip], y[::skip, ::skip], Ex[::skip, ::skip], Ey[::skip, ::skip], color='black')
+    current_ax.streamplot(x,y,Ex,Ey, 
+                          density=1,
+                          color='black',alpha=0.7)
     current_ax.imshow(full_array, cmap="bwr")
-
-    # Create an inset axis for magnification
     axins = current_ax.inset_axes([0.55, 0.55, 0.4, 0.4])
-
-    # Define the zoom region (center of the array)
     zoom_size = h // 6
     x1, x2 = w - zoom_size, w + zoom_size
     y1, y2 = h - zoom_size, h + zoom_size
     
-    # Apply the zoom
     axins.set_xlim(x1, x2)
-    axins.set_ylim(y2, y1) # Inverted y-axis for imshow
+    axins.set_ylim(y2, y1) 
     axins.set_xticklabels([])
     axins.set_yticklabels([])
 
-    # Plot the same data on the inset axis
     inset_skip = 50
     axins.quiver(x[y1:y2:inset_skip, x1:x2:inset_skip], y[y1:y2:inset_skip, x1:x2:inset_skip],
                  Ex[y1:y2:inset_skip, x1:x2:inset_skip], Ey[y1:y2:inset_skip, x1:x2:inset_skip],
                  color='black')
     axins.imshow(full_array, cmap="bwr", extent=[0, w_full, h_full, 0])
 
-    # Draw a box indicating the zoomed area
     current_ax.indicate_inset_zoom(axins, edgecolor="green")
 
-# Hide any unused subplots if there are fewer than 9 arrays
-for j in range(i + 1, len(axes)):
-    axes[j].axis('off')
 
 fig.tight_layout()
 fig.savefig("results/ex04_placas_separadas.jpg",dpi=300)

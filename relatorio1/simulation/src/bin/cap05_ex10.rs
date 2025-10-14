@@ -1,7 +1,7 @@
 use eletrocomp::{
     initial_conditions::*,
     methods::{over_relaxation},
-    neighbor_averages::*,
+    update_functions::*,
 };
 use ndarray::{Array2, Array3, Ix2, Ix3};
 use std::fs::File;

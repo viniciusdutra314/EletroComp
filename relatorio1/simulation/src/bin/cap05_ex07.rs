@@ -1,4 +1,4 @@
-use eletrocomp::{initial_conditions::*, methods::*, miscellaneous::*, neighbor_averages::*};
+use eletrocomp::{initial_conditions::*, methods::*, miscellaneous::*, update_functions::*};
 use ndarray::s;
 use std::f64::consts::PI;
 use std::fs::File;

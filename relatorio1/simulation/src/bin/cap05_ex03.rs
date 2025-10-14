@@ -1,4 +1,4 @@
-use eletrocomp::{neighbor_averages::*, initial_conditions::*, methods::*, miscellaneous::*};
+use eletrocomp::{update_functions::*, initial_conditions::*, methods::*, miscellaneous::*};
 use ndarray::s;
 
 fn main() {

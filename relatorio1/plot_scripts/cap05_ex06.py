@@ -1,32 +1,13 @@
 import numpy as np
+from cap05_common_plots import plot_potential_2d_colormap
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D  
+array=np.load("results/ex06_potential.npy")
+potential_rotated = np.rot90(array, 3)
+fig,ax=plot_potential_2d_colormap(potential_rotated,"bone")
 
-potencial = np.load("results/ex04.npy")
+Ey, Ex = np.gradient(-potential_rotated)
+x = np.arange(0, Ex.shape[1], 1)
+y = np.arange(0, Ey.shape[0], 1)
+ax.streamplot(x, y, Ex, Ey, linewidth=0.8, density=1.0)
 
-plt.figure()
-plt.imshow(potencial, cmap="hot")
-plt.colorbar()
-plt.title("Electric Potential (2D)")
-plt.tight_layout()
-plt.savefig("results/eletric_potential.jpg", dpi=200)
-
-ny, nx = potencial.shape
-x = np.arange(nx)
-y = np.arange(ny)
-X, Y = np.meshgrid(x, y)
-
-fig = plt.figure()
-ax = fig.add_subplot(111, projection="3d")
-rstride = max(1, nx // 100)
-cstride = max(1, ny // 100)
-ax.plot_wireframe(X, Y, potencial, rstride=rstride, cstride=cstride, color="black", linewidth=0.6)
-ax.set_xlabel("x")
-ax.set_ylabel("y")
-ax.set_zlabel("V")
-ax.set_title("Electric Potential (wireframe)")
-ax.view_init(elev=30, azim=-60)
-fig.tight_layout()
-fig.savefig("results/eletric_potential_wire.jpg", dpi=200)
-
-plt.close("all")
+fig.savefig("results/ex06_potential.jpg", dpi=150)

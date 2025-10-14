@@ -5,23 +5,53 @@
 #codly(languages:codly-languages)
 #set page(numbering: "1", number-align: center)
 #set text(lang: "pt")
+#set page(
+  paper: "a4",
+  margin: (top: 3cm, bottom: 2.5cm, left: 2.5cm, right: 2.5cm),
+)
 #set par(justify: true)
+#set document(
+  title: "Projeto 1 - Análise espectral por transformadas de Fourier",
+  author: "Vinícius Sousa Dutra",
+)
 
-= Equação De Laplace
+#align(center)[
 
-$nabla^2 V=(partial^2 V)/(partial x^2)+(partial^2 V)/(partial y^2)+(partial^2 V)/(partial z^2)=0$
+  #image("ifsc_logo.jpg", width: 15cm)
+  // Centered University and Institute Name (Repeated)
 
-Nós precisamos fazer uma discretização,
-assumindo $Delta x=Delta y=Delta z=1$
+  // Flexible vertical space to push the title down.
+  #v(2.5fr)
 
-$(partial^2 V)/(partial x^2)=(V(x+Delta x)-V(x)-V(x)+V(x- Delta x))/(Delta x^2)=(V(x+Delta x)-2V(x)+V(x-Delta x) )/(Delta x^2)$
+  // Main Title Section
+  #text(30pt)[
+    Projeto 1 - Potenciais e campos
+  ]
+  #v(1.5em)
+  #text(20pt)[
+    Eletromagnetismo Computacional (7600036) 
+  ]
 
-Jogando essa aproximação na equação de Laplace
+  #v(4fr)
+]
 
-$V(x,y,z)=1/6 (V(x+Delta x,y,z)+V(x-Delta x,y,z)+V(x,y+Delta y,z)+V(x,y -Delta y,z)
-  + V(x,y,z+Delta z)+V(x,y,z-Delta z))$
+#block[
+  #strong[Professor:]\
+   Guilherme Matos Sipahi
+  #v(2em)
 
+  #strong[Aluno:]\
+  Vinícius Sousa Dutra (13686257)
+]
+
+#v(1fr)
+
+// Date Section
+#align(center)[
+  14 de outubro de 2025
+]
 #pagebreak()
+
  #outline()
 #pagebreak()
 
@@ -40,10 +70,10 @@ Com a biblioteca #link("https://docs.rs/ndarray/latest/ndarray","ndarray")  é p
 tempo de compilação, não há impactos no desempenho.
 
 O tipo numérico utilizado não é especificado, só é necessário que ele se comporte 
-como um Float de acordo com o #link("https://docs.rs/num-traits/latest/num_traits/","num-traits") do Rust. Com isso é possível testar o código para f16,f32,f64... etc, assim verificando
+como um Float de acordo com o #link("https://docs.rs/num-traits/latest/num_traits/","num-traits") do Rust. Com isso é possível testar o código para f32,f64,f128... etc, assim verificando
 se a precisão do float utilizado interfere ou não no resultado final.
 
-Com isso é possível criar uma função que cria um array que representa um hipercubo
+Com isso, é possível criar uma função que cria um array que representa um hipercubo
 de dimensão D com tipo numérico T
 ```rust
 fn create_hypercube<T,D>(n: usize) -> (Array<T, D>)
@@ -54,9 +84,9 @@ where
 ```
 
 == As 3 abstrações principais
-Cada problema pode serem pensando em 3 coisas extremamente correlacionadas
+Cada problema pode ser pensando como a junção de 3 coisas extremamente correlacionadas
 - Condições inicias
-- Média dos vizinhos
+- Função de atualização
 - Método (Jacobi ou SOR)
 === Condição Inicial
 Uma condição inicial é essencialmente o potencial elétrico em cada ponto e se aquele ponto tem potencial fixo ou 
@@ -67,9 +97,7 @@ Podemos criar qualquer condição inicial que for necessária, somente para demo
 fn generic_image<T: Float>(path: &str) -> (Array2<T>, Array2<bool>)
 ```
 
-A função considera os pixels escuros da imagem como sendo $V=1$ fixo e o resto $V=0$, as bordas são fixas em 0, para exemplo segue uma ilustração da Torre Eiffel
-
-
+A função considera os pixels escuros da imagem como sendo $V=1$ fixo e o resto $V=0$, as bordas são fixas em 0, como exemplo segue uma ilustração da Torre Eiffel
 
 
 #figure(
@@ -87,31 +115,35 @@ Infelizmente o ndarray não é genérico
 ao ponto de permitir customizar o armazenamento interno para aproveitar memória em matrizes esparsas, simétricas,antissimétricas etc. Logo, todas as matrizes serão densas e cada elemento terá um endereço único (arrays de booleanos não são densamente empacotados com máscaras binárias). Isso não é um problema relevante para os exemplos com $N$ entre $10^2$ e $10^3$  
 
 As condições inicias se encontram em *`simulation/src/initial_conditions.rs`*
-=== Média dos Vizinhos
-Dado um ponto $P$, queremos a média do potencial elétrico nos pontos vizinhos a $P$. Para cada condição de contorno e simetria diferente, teremos uma noção diferente de vizinhança. Fica claro a necessidade de uma função que dado um potencial de tipo numérico T / dimensão D e um ponto de mesma dimensão D, retorne a média no tipo T 
+=== Função de Atualização
+Independente do método, precisamos especificar como que um dado ponto $P$ tem seu potencial transformado de $V_(o l d)(P) arrow V_(n e w)(P)$ na próxima iteração.
+
+No caso euclidiano essa função é simples, precisamos da média do potencial elétrico nos pontos vizinhos a $P$. Para cada condição de contorno e simetria diferente, teremos uma noção diferente de vizinhança.
+
+Com a adição de densidade de carga $rho$, basta adicioná-la a média. No caso esférico, a situação já é mais difícil pois não é possível escrever o novo valor em termos da média da vizinhança, precisamos de uma função diferente
+
+Fica claro a necessidade de uma função abstrata que dado um potencial de tipo numérico T / dimensão D e um ponto de mesma dimensão D, retorne o novo valor T 
 ```rust
-NeighborAverage: Fn(&Array<T, D>, Index<D>) -> T
+UpdateFunction: Fn(&Array<T, D>, Index<D>) -> T
 ```
 
-Essas médias se encontram em *`simulation/src/neighbor_averages.rs`*
+Essas funções se encontram em *`simulation/src/update_functions.rs`*
 
 === Métodos
-Para aplicar um método é necessário as condições iniciais (potencial inicial, quais pontos são fixos e a densidade de carga), a função que calcula a média da vizinhança e uma variação máxima de uma iteração para a outra.
-
-A função retorna o potencial elétrico final e o número de iterações
+Para aplicar um método é necessário as condições iniciais (potencial inicial, quais pontos são fixos e a densidade de carga), a função que atualiza cada ponto e o critério de parada das iterações, uma função método retorna o potencial elétrico final e o número de iterações
 
 #figure(raw(
 "fn jacobi_method<T, D, NeighborAvg>(
     initial_potential: ArrayView<T, D>,
     fixed_points: ArrayView<bool, D>,
     charge_density: Option<ArrayView<T, D>>,
-    neighbor_average: NeighborAvg,
+    update_function: UpdateFunction,
     error_tolerance: T,
 ) -> (Array<T, D>, usize)
 where
     T: Float,
     D: Dimension 
-    NeighborAvg: Fn(&Array<T, D>, D) -> T",lang: "rust",block:true),caption:"Assinatura geral dos métodos")
+    UpdateFunction: Fn(&Array<T, D>, D) -> T",lang: "rust",block:true),caption:"Assinatura geral dos métodos")
 
 
 Como só é introduzido cargas elétricos nos últimos exercícios, a densidade de carga é opcional, para evitar verificações desnecessárias, os métodos são funções que despacham para duas variações delas mesmas, uma com densidade de carga e outra sem. Assim, essa verificação da presença ou não desse array é feita fora do loop principal, o que mostrou ser uma diferença importante em performance
@@ -145,8 +177,8 @@ Esse exercício consiste em criar um grid $N times N$ com bordas de potencial fi
 $V=0$ e um quadrado interno com $V=1$, como  o esperado, a tensão lentamente decai
 lentamente do quadrado até a borda.
 
-Com um quadrado com um tamanho pequeno (10% de N), o problema parece ter uma simetria
-esférica, mas isso não é verdade, com um grande grande o suficiente para ficar próxima das bordas
+Dado um quadrado com um tamanho pequeno (10% de N), o problema parece ter uma simetria
+esférica, mas isso não é verdade, com um quadrado grande o suficiente para ficar próxima das bordas
 é possível ver que o problema só tem a simetria dos quadrantes
 
 #figure(
@@ -179,7 +211,9 @@ Use the symmetry of the problem described in Figure 5.4 to write a program that 
   ]
 )
 
-O problema é basicamente idêntico ao anterior, mas como o problema é o mesmo em todos os quadrantes, podemos usar que $V(x,y)=V(|x|,|y|)$ e só simular um quadrante. Isso pode ser feito facilmente aplicando uma *view* sobre as condições inicias, fazendo um slicing para só pegar o canto superior direito. A própria função `jacobi_method` espera receber views porque as vezes é mais fácil em pensar no problema como um todo e então "cortar" pedaços fora dele
+O problema é basicamente idêntico ao anterior, mas como o problema é o mesmo em todos os quadrantes, podemos usar que $V(x,y)=V(|x|,|y|)$ (imaginando um sistema de coordenadas com origem no centro do quadrado) e só simular um quadrante.
+
+ Isso pode ser feito facilmente aplicando uma *view* sobre as condições inicias, fazendo um slicing para só pegar o canto superior direito. A própria função `jacobi_method` espera receber views porque as vezes é mais fácil em pensar no problema como um todo e então "cortar" pedaços fora dele
 
 #codly-range(7)
 #figure(
@@ -192,7 +226,7 @@ raw(read("simulation/src/bin/cap05_ex02.rs"),lang: "rust",block:true),caption: "
 )
 
 
-Simulando somente $1/4$ do problema se mede um speedup importante no tempo de execução da simulação, seria esperado um speedup de 4 mas outro fator importante é que com o método converge mais rápido porque pelas condições de contorno, as simetrias já são impostas.
+Simulando somente $1/4$ do problema se mede um speedup importante no tempo de execução da simulação, seria esperado um speedup de 4, mas outro fator importante é que o método converge mais rápido porque pelas condições de contorno as simetrias já são impostas.
 #align(center)[
   #table(
     columns: (auto, auto, auto),
@@ -212,7 +246,7 @@ Usando `pattern matching` do Rust é possível expressar elas de maneira bem dir
 
 #codly-range(25,end:53)
 #figure(
-raw(read("simulation/src/neighbor_averages.rs"),lang: "rust",block:true),caption: "Condições de contorno exercício 2")
+raw(read("simulation/src/update_functions.rs"),lang: "rust",block:true),caption: "Condições de contorno exercício 2")
 
 
 #codly-range(3,end:11)
@@ -245,8 +279,8 @@ caption: "Colagem exercício 2")
   ]
 )
 
-A simetria usada nesse exercício é que $V(x,y)=-V(x,y)$ e que $V(x,y)=V(x,-y)$, a mesma técnica de realizar
-um slicing das condições inicias e então realizar a colagem na visualização.
+A simetria usada nesse exercício é que $V(x,y)=-V(-x,y)$ e que $V(x,y)=V(x,-y)$, foi usada a mesma técnica de realizar
+um slicing das condições inicias e então realizar a colagem na visualização. Agora tomando o cuidado de mudar o sinal do potencial no eixo x
 
 
 #figure(
@@ -316,7 +350,7 @@ simples (f32) e precisão dupla (f64), ambos tipos do Rust seguem o padrão IEEE
 )<fig:f32_f64>
 
 A @fig:f32_f64 mostra que os tipos f32/f64 não fazem muita diferença até $p=5$, isso ocorre porque 
-o $epsilon_(f 3 2 ) approx 10^(-7)$ enquanto $epsilon_(f 6 4) approx 2 times 10^(-16)$, então para precisões altas o f32
+o $epsilon_(f 3 2 ) approx 10^(-7)$ enquanto $epsilon_(f 6 4) approx 2 times 10^(-16)$, para diferenças pequenas o f32
 começa a já perder precisão pois ele não consegue representar a diferença entre dois números muito próximos.
 
 O $V_(i d e a l)$ foi calculado usando precisão quadrupla (f128) com erro $10^(-30)$ para ser a referência. A 
@@ -338,7 +372,10 @@ de estagnação
  Calculate the electric potential and field near a lightning rod. Model this as a very long and narrow metal rod held at a high voltage, with one end near a conducting plane. Of special interest is the field near the tip of the rod.
   ]
 )
+#figure(image("results/ex06_potential.jpg"),caption:"Potencial elétrico de um para-raios")
 #pagebreak()
+
+
 == 5.7
 
 #box(
@@ -371,7 +408,7 @@ Aplicando um fitting de $O(n^2)$ no método de Jacobi e um $O(n)$ no SOR fica ev
 os métodos tem o comportamento assintótico esperado. Uma vez que $n^2/n=n$ o speedup é esperado
 que cresça linearmente, ou seja, quanto maior o problema mais vantajoso é o método de SOR sobre o Jacobi.
 
-Em termos de memória 
+Em termos de memória, o método de SOR ainda tem a vantagem de só utilizar um array na memória por vez
 
 
 #figure(
@@ -415,7 +452,6 @@ where we have assumed a spherically symmetric problem so that $V$ is a function 
 
 Primeiramente, é necessário discretizar a equação de Poisson em coordenadas esféricas, uma forma simples de se fazer é isso usando uma biblioteca de cálculo simbólico como o #link("https://docs.sympy.org/latest/explanation/special_topics/finite_diff_derivatives.html","Sympy")
 
-#codly(zebra-fill: none)
 #codly-range(0,end:13)
 #codly(
   annotations: (
@@ -441,7 +477,26 @@ Primeiramente, é necessário discretizar a equação de Poisson em coordenadas 
   block:true,
   lang:"python"
 ),caption: "Discretização da equação de Poisson")
+
+Com esse código chegamos na formula de atualização:
+$
+V(i) = 1/2 (rho/epsilon + V(i+1)(1+1/r) + V(i-1)(1-1/r))
+$
+
+Para evitar singularidades vamos considerar uma partícula como uma pequena esfera de $r_(m i n)=5$ com densidade constante $rho$ de carga , podemos usar como condição de contorno que o potencial no infinito se anula $V(infinity)=0$.
+
+Pelo teorema das cascas esféricas, sabemos que para $r>r_(m i n)$, o potencial elétrico deve se comportar como se a partícula tivesse toda carga concentrada em seu centro
+
+$
+  V(r>r_(m i n))=(c t e)/r 
+$
+A @img:potencial_coulomb mostra o resultado da simulação, o valor absoluto do potencial não é importante pois estamos usando unidades arbitrárias, realizando um fitting para $V(r)=(c t e )/r$, encontramos uma curva que se adequa bem aos dados
+
+#figure(image("results/ex09.png"),caption: "Potencial de uma partícula") <img:potencial_coulomb>
+
 #pagebreak()
+
+
 
 == 5.10
 

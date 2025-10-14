@@ -1,6 +1,6 @@
 use core::error;
 use std::f64::consts::PI;
-use eletrocomp::{neighbor_averages::*,miscellaneous::*,methods::*,initial_conditions::*};
+use eletrocomp::{update_functions::*,miscellaneous::*,methods::*,initial_conditions::*};
 
 
 fn main(){
