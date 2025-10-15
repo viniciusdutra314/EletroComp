@@ -116,11 +116,17 @@ ao ponto de permitir customizar o armazenamento interno para aproveitar memória
 
 As condições inicias se encontram em *`simulation/src/initial_conditions.rs`*
 === Função de Atualização
-Independente do método, precisamos especificar como que um dado ponto $P$ tem seu potencial transformado de $V_(o l d)(P) arrow V_(n e w)(P)$ na próxima iteração.
+Independente do método, precisamos especificar como que um dado ponto $P$ 
+tem seu potencial transformado de $V_(o l d)(P) arrow V_(n e w)(P)$ 
+na próxima iteração.
 
 No caso euclidiano essa função é simples, precisamos da média do potencial elétrico nos pontos vizinhos a $P$. Para cada condição de contorno e simetria diferente, teremos uma noção diferente de vizinhança.
 
-Com a adição de densidade de carga $rho$, basta adicioná-la a média. No caso esférico, a situação já é mais difícil pois não é possível escrever o novo valor em termos da média da vizinhança, precisamos de uma função diferente
+A  densidade de carga $rho$ não é considerada como argumento da função mas sim como
+parte do corpo da função, assim não precisamos considerar a densidade de carga como um
+argumento opcional e criarmos um condição para checar se ela foi passada ou
+
+No caso esférico, a situação já é mais difícil pois não é possível escrever o novo valor em termos da média da vizinhança, precisamos de uma função diferente
 
 Fica claro a necessidade de uma função abstrata que dado um potencial de tipo numérico T / dimensão D e um ponto de mesma dimensão D, retorne o novo valor T 
 ```rust
@@ -130,25 +136,40 @@ UpdateFunction: Fn(&Array<T, D>, Index<D>) -> T
 Essas funções se encontram em *`simulation/src/update_functions.rs`*
 
 === Métodos
-Para aplicar um método é necessário as condições iniciais (potencial inicial, quais pontos são fixos e a densidade de carga), a função que atualiza cada ponto e o critério de parada das iterações, uma função método retorna o potencial elétrico final e o número de iterações
+Um método encapsula a lógica de como usar as condições inicias e a função
+de atualizar para gerar o resultado final, um método dentro do código
+tem uma instância associada da enumeração `Method<T>`. Cada método
+pode ter zero ou mais argumentos, os métodos de Jacobi/Gauss não possuem nenhum 
+parâmetro já o over-relaxation tem o $alpha$ como parâmetro
 
-#figure(raw(
-"fn jacobi_method<T, D, NeighborAvg>(
-    initial_potential: ArrayView<T, D>,
-    fixed_points: ArrayView<bool, D>,
-    charge_density: Option<ArrayView<T, D>>,
-    update_function: UpdateFunction,
-    error_tolerance: T,
-) -> (Array<T, D>, usize)
-where
-    T: Float,
-    D: Dimension 
-    UpdateFunction: Fn(&Array<T, D>, D) -> T",lang: "rust",block:true),caption:"Assinatura geral dos métodos")
+#codly-range(7,end:11)
+#figure(
+raw(read("simulation/src/methods.rs"),lang: "rust",block:true),caption: "Métodos")
 
-
-Como só é introduzido cargas elétricos nos últimos exercícios, a densidade de carga é opcional, para evitar verificações desnecessárias, os métodos são funções que despacham para duas variações delas mesmas, uma com densidade de carga e outra sem. Assim, essa verificação da presença ou não desse array é feita fora do loop principal, o que mostrou ser uma diferença importante em performance
 
 Os métodos se encontram em *`simulation/src/methods.rs`*
+
+
+
+== Poisson Solver
+
+A função `poisson_solver` une as 3 abstrações mencionadas em um "resolvedor" que
+recebe um método, as condições inicias e a função de atualização. Ela retorna
+o resultado final com o número de iterações usado
+
+#codly-range(15,end:21)
+#figure(
+raw(read("simulation/src/methods.rs"),lang: "rust",block:true),caption: "Código exercício 1")
+
+
+A sua implementação é mais simples do que se pode esperar por ser tão genérico
+
+#codly-range(29,end:72)
+#figure(
+raw(read("simulation/src/methods.rs"),lang: "rust",block:true),caption: "Implementação poisson_solver")
+
+#pagebreak()
+
 
 = Exercícios
 == 5.1
@@ -190,6 +211,11 @@ esférica, mas isso não é verdade, com um quadrado grande o suficiente para fi
   ),
   caption: "Potencial elétrico figura 5.4"
 )
+
+#pagebreak()
+
+O código nesse caso é muito simples, as 3 abstrações
+simplificam muito 
 
 #codly-range(7)
 #figure(

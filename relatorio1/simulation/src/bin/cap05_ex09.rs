@@ -10,7 +10,14 @@ fn main() {
     fixed_points[n-1]=true;
     let mut charge_density = Array1::from_elem(n, 0.0);
     charge_density.slice_mut(s![0..charge_size]).fill(1.0);
-
+        let update_function = |v: &Array<f64, Ix1>, idx: Ix1| {
+        match idx[0] {
+            0 => v[1],
+            r => charge_density[idx]+
+            0.5*(v[r + 1] * (1.0 + 1.0 / (r as f64))
+            + v[r - 1] * (1.0 - 1.0 / (r as f64)))
+        }
+    };
     let (result, _) = over_relaxation_spherical_coordinates(
         initial_potential.view(),
         fixed_points.view(),

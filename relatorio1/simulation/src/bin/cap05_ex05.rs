@@ -15,7 +15,7 @@ fn run_simulation_for_precision<
     let filename = format!("results/ex05_comparison_{}.csv", std::any::type_name::<T>().split("::").last().unwrap());
     let file = File::create(filename)?;
     let mut writer = BufWriter::new(file);
-    writeln!(writer, "Tolerance,Jacobi-It,Sor-It,Jacobi-Err,Sor-Err")?;
+    writeln!(writer, "Tolerance,Jacobi-It,Gauss-It,Sor-It,Jacobi-Err,Gauss-Err,Sor-Err")?;
 
     let n=300;
     
@@ -28,13 +28,12 @@ fn run_simulation_for_precision<
         create_two_capacitors(n, plate_separation_f128, plate_length_f128, plate_potential_f128);
     let initial_potential_view_f128 = initial_potential_f128.slice(s![n / 2..n, n / 2..n]);
     let fixed_points_view_f128 = fixed_points_f128.slice(s![n / 2..n, n/2..n]);
-    let (perfect_result_f128, _) = over_relaxation(
+    let (perfect_result_f128, _) = poisson_solver(
+        Method::OverRelaxation { alpha_factor: alpha_f128 },
         initial_potential_view_f128,
         fixed_points_view_f128,
-        None,
         ex03_neighbor_average,
         f128::from(1e-30),
-        alpha_f128,
     );
 
 
@@ -53,32 +52,43 @@ fn run_simulation_for_precision<
         let initial_potential_view = initial_potential.slice(s![n / 2..n, n / 2..n]);
         let fixed_points_view = fixed_points.slice(s![n / 2..n, n / 2..n]);
 
-        let (_jacobi_result, jacobi_iterations) = jacobi_method(
+        let (_jacobi_result, jacobi_iterations) = poisson_solver(
+            Method::Jacobi,
             initial_potential_view,
             fixed_points_view,
-            None,
             ex03_neighbor_average,
             tolerance,
         );
         let jacobi_error = (&perfect_result_f128 - &_jacobi_result.mapv(|x| f128::from(T::to_f64(&x).unwrap()))).mapv(f128::abs).sum();
 
-        let (_relaxation_result, relaxation_iterations) = over_relaxation(
+        let (_gauss_result, gauss_iterations) = poisson_solver(
+            Method::Gauss,
             initial_potential_view,
             fixed_points_view,
-            None,
             ex03_neighbor_average,
             tolerance,
-            alpha_factor,
+        );
+        let gauss_error= (&perfect_result_f128 - &_gauss_result.mapv(|x| f128::from(T::to_f64(&x).unwrap()))).mapv(f128::abs).sum();
+
+
+        let (_relaxation_result, relaxation_iterations) = poisson_solver(
+            Method::OverRelaxation { alpha_factor },
+            initial_potential_view,
+            fixed_points_view,
+            ex03_neighbor_average,
+            tolerance,
         );
         let relaxation_error = (&perfect_result_f128 - &_relaxation_result.mapv(|x| f128::from(T::to_f64(&x).unwrap()))).mapv(f128::abs).sum();
 
         writeln!(
             writer,
-            "{},{},{},{},{}",
+            "{},{},{},{},{},{},{}",
             tolerance,
             jacobi_iterations,
+            gauss_iterations,
             relaxation_iterations,
             jacobi_error,
+            gauss_error,
             relaxation_error,
         )?;
     }
@@ -86,8 +96,8 @@ fn run_simulation_for_precision<
 }
 
 fn main() -> std::io::Result<()> {
-    run_simulation_for_precision::<f32>()?;
-    run_simulation_for_precision::<f64>()?;
+    run_simulation_for_precision::<f32>();
+    run_simulation_for_precision::<f64>();
     
     Ok(())
 }

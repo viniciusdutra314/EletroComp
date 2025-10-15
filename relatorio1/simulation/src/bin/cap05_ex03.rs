@@ -9,10 +9,10 @@ fn main() {
     let tolerance = 1e-5;
     let (initial_potential, fixed_points) =
         create_two_capacitors(n, plate_separation, plate_length, plate_potential);
-    let (result, _) = jacobi_method(
+    let (result, _) = poisson_solver(
+        Method::Jacobi,
         initial_potential.slice(s![n / 2..n, n / 2..n]),
         fixed_points.slice(s![n / 2..n, n / 2..n]),
-        None,
         ex03_neighbor_average,
         tolerance,
     );

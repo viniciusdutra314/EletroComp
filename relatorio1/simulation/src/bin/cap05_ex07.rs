@@ -1,4 +1,4 @@
-use eletrocomp::{initial_conditions::*, methods::*, miscellaneous::*, update_functions::*};
+use eletrocomp::{initial_conditions::*, methods::{self, *}, miscellaneous::*, update_functions::*};
 use ndarray::s;
 use std::f64::consts::PI;
 use std::fs::File;
@@ -15,18 +15,8 @@ fn main() -> std::io::Result<()> {
     let mut writer = BufWriter::new(file);
     writeln!(
         writer,
-        "N,Jacobi Iterations,SOR Iterations,Jacobi Time (s),SOR Time (s),Speedup"
+        "N,Jacobi-It,Gauss-It,SOR-It,Jacobi-Time,Gauss-Time,SOR-Time"
     )?;
-
-    println!(
-        "{:<5} | {:<17} | {:<16} | {:<15} | {:<15} | {:<10}",
-        "N", "Jacobi Iterations", "SOR Iterations", "Jacobi Time (s)", "SOR Time (s)", "Speedup"
-    );
-    println!(
-        "{:-<5} | {:-<17} | {:-<16} | {:-<15} | {:-<15} | {:-<10}",
-        "", "", "", "", "", ""
-    );
-
     for n in (50..500).step_by(50) {
         let alpha_factor = 2.0 / (1.0 + (PI / (n as f64)));
         let (initial_potential, fixed_points) =
@@ -35,46 +25,46 @@ fn main() -> std::io::Result<()> {
         let fixed_points_view = fixed_points.slice(s![n / 2..n, n / 2..n]);
 
         let start_jacobi = Instant::now();
-        let (_jacobi_result, jacobi_iterations) = jacobi_method(
+        let (_jacobi_result, jacobi_iterations) = poisson_solver(
+            Method::Jacobi,
             initial_potential_view,
             fixed_points_view,
-            None,
             ex03_neighbor_average,
             tolerance,
         );
         let jacobi_duration = start_jacobi.elapsed();
 
-        let start_sor = Instant::now();
-        let (_relaxation_result, relaxation_iterations) = over_relaxation(
+        
+        let start_gauss = Instant::now();
+        let (_gauss_result, _gauss_iterations) = poisson_solver(
+            Method::Gauss,
             initial_potential_view,
             fixed_points_view,
-            None,
             ex03_neighbor_average,
             tolerance,
-            alpha_factor,
+        );
+        let gauss_duration = start_gauss.elapsed();
+
+        let start_sor = Instant::now();
+        let (_relaxation_result, relaxation_iterations) = poisson_solver(
+            Method::OverRelaxation { alpha_factor: alpha_factor },
+            initial_potential_view,
+            fixed_points_view,
+            ex03_neighbor_average,
+            tolerance,
         );
         let sor_duration = start_sor.elapsed();
 
-        let speedup = jacobi_duration.as_secs_f64() / sor_duration.as_secs_f64();
-
-        println!(
-            "{:<5} | {:<17} | {:<16} | {:<15.3} | {:<15.3} | {:<10.2}",
-            n,
-            jacobi_iterations,
-            relaxation_iterations,
-            jacobi_duration.as_secs_f64(),
-            sor_duration.as_secs_f64(),
-            speedup
-        );
         writeln!(
             writer,
-            "{},{},{},{:.6},{:.6},{:.2}",
+            "{},{},{},{},{},{},{}",
             n,
             jacobi_iterations,
+            _gauss_iterations,
             relaxation_iterations,
             jacobi_duration.as_secs_f64(),
+            gauss_duration.as_secs_f64(),
             sor_duration.as_secs_f64(),
-            speedup
         )?;
     }
     Ok(())

@@ -10,7 +10,7 @@ def plot_potential_2d_colormap(potencial: np.ndarray,cmap:str) -> (tuple[plt.Fig
     fig.tight_layout()
     return (fig,ax)
 
-def plot_wireframe(potencial: np.ndarray, step: int = 10) -> (tuple[plt.Figure,plt.Axes]):    
+def plot_wireframe(potencial: np.ndarray, cmap:str,step: int = 10 ) -> (tuple[plt.Figure,plt.Axes]):    
     ny, nx = potencial.shape
     x = np.arange(nx)
     y = np.arange(ny)
@@ -18,7 +18,7 @@ def plot_wireframe(potencial: np.ndarray, step: int = 10) -> (tuple[plt.Figure,p
     fig = plt.figure()
     ax = fig.add_subplot(111, projection="3d")
     norm = plt.Normalize(potencial.min(), potencial.max())
-    colors = cm.bwr(norm(potencial))
+    colors = cm.get_cmap(cmap)(norm(potencial))
     
     rstride = max(1, nx // 100)
     cstride = max(1, ny // 100)

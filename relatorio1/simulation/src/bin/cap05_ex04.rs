@@ -9,13 +9,13 @@ fn main() {
         let tolerance = 1e-10;
         let (initial_potential, fixed_points) =
             create_two_capacitors(n, plate_separation, plate_length, plate_potential);
-        let (result, _) = over_relaxation(
+        let (result, _) = poisson_solver(
+            Method::OverRelaxation { alpha_factor: (2.0/(1.0 + std::f64::consts::PI/n as f64)) },
             initial_potential.slice(s![n / 2..n, n / 2..n]),
             fixed_points.slice(s![n / 2..n, n / 2..n]),
-            None,
             ex03_neighbor_average,
             tolerance,
-            2.0/(1.0 + std::f64::consts::PI/n as f64)
+            
         );
         save_array(
             &result,
