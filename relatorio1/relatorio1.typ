@@ -427,19 +427,20 @@ de iterações e o tempo de execução em segundos, como consta na @ex07-data.
   align: center + horizon,
   stroke: 0.4pt,
   ..data.flatten()
-)),caption: "Dados Jacobi vs SOR",
+)),caption: "Dados Jacobi/Gauss/SOR",
 )<ex07-data>
 
-Aplicando um fitting de $O(n^2)$ no método de Jacobi e um $O(n)$ no SOR fica evidente que 
+Aplicando um fitting de $O(n^2)$ nos métodos de Jacobi/Gauss e um $O(n)$ no SOR fica evidente que 
 os métodos tem o comportamento assintótico esperado. Uma vez que $n^2/n=n$ o speedup é esperado
-que cresça linearmente, ou seja, quanto maior o problema mais vantajoso é o método de SOR sobre o Jacobi.
+que cresça linearmente, ou seja, quanto maior o problema mais vantajoso é o método de SOR sobre os outros.
 
-Em termos de memória, o método de SOR ainda tem a vantagem de só utilizar um array na memória por vez
+O método de Gauss se mostrou superior ao de Jacobi, tendo menos iterações e um tempo de execução menor. A diferença
+é mínima quando comparada com a eficiência do SOR, mas é percebível  
 
 
 #figure(
   image("results/ex07_comparison.png"),
-  caption: "Performance Jacobi vs SOR"
+  caption: "Performance Jacobi/Gauss/SOR"
 )
 
 
@@ -458,6 +459,13 @@ Em termos de memória, o método de SOR ainda tem a vantagem de só utilizar um 
     Extend our treatment of a point charge in a metal box to deal with the case in which the charge is located near one face of the box. Study how the equipotential contours are affected by the proximity of a grounded surface (the face of the box).
   ]
 )
+Como as bordas estão aterradas ($V=0$), o campo elétrico decai mais rapidamente próximo delas, enquanto 
+fora das bordas o campo tem uma "calda"
+#figure(
+  image("results/ex08_charge_near_plate.png"),
+  caption: "Campo elétrico próximo das bordas"
+)
+
 #pagebreak()
 
 == 5.9
@@ -509,16 +517,17 @@ $
 V(i) = 1/2 (rho/epsilon + V(i+1)(1+1/r) + V(i-1)(1-1/r))
 $
 
-Para evitar singularidades vamos considerar uma partícula como uma pequena esfera de $r_(m i n)=5$ com densidade constante $rho$ de carga , podemos usar como condição de contorno que o potencial no infinito se anula $V(infinity)=0$.
+Para evitar singularidades vamos considerar uma partícula como uma pequena esfera de $r_(m i n)=20$ com densidade constante $rho$ de carga , podemos usar como condição de contorno que o potencial no infinito se anula $V(infinity)=0$.
 
-Pelo teorema das cascas esféricas, sabemos que para $r>r_(m i n)$, o potencial elétrico deve se comportar como se a partícula tivesse toda carga concentrada em seu centro
+Como é mais intuitivo pensar nesse problema fazendo o análogo gravitacional de um planeta com massa $m$,
+vou converter o potencial em campo elétrico usando $arrow(E)=-arrow(nabla) V$
 
-$
-  V(r>r_(m i n))=(c t e)/r 
-$
-A @img:potencial_coulomb mostra o resultado da simulação, o valor absoluto do potencial não é importante pois estamos usando unidades arbitrárias, realizando um fitting para $V(r)=(c t e )/r$, encontramos uma curva que se adequa bem aos dados
+Pelo teorema das cascas esféricas, sabemos que o campo elétrico deve se comportar como se a partícula tivesse toda carga concentrada em seu centro, em $r>r_min$ temos um campo $arrow(E) prop 1/r^2$ e em $r<r_min$ $arrow(E) prop r$
 
-#figure(image("results/ex09.png"),caption: "Potencial de uma partícula") <img:potencial_coulomb>
+
+A @img:potencial_coulomb mostra o resultado da simulação, o valor absoluto do potencial não é importante pois estamos usando unidades arbitrárias,ambos os regimes mostraram serem válidos
+
+#figure(image("results/ex09.png"),caption: "Potencial de uma partícula com raio R") <img:potencial_coulomb>
 
 #pagebreak()
 

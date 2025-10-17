@@ -1,6 +1,6 @@
 use eletrocomp::{
     initial_conditions::*,
-    methods::{over_relaxation},
+    methods::{*},
     update_functions::*,
 };
 use ndarray::{Array2, Array3, Ix2, Ix3};
@@ -16,13 +16,13 @@ fn main() -> std::io::Result<()> {
         let (initial_condition, fixed_points) = create_hypercube::<f64, Ix2>(n);
         let mut charge_density = Array2::<f64>::zeros((n, n));
         charge_density[(n / 2, n / 2)] = 100.0;
-        let (_, iterations_2d) = over_relaxation(
+        let (_, iterations_2d) = poisson_solver(
+            Method::OverRelaxation { alpha_factor: alpha }
             initial_condition.view(),
             fixed_points.view(),
             Some(charge_density.view()),
             simple_neighbor_average_2d,
             tolerance,
-            alpha,
         );
         let (initial_condition, fixed_points) = create_hypercube::<f64, Ix3>(n);
         let mut charge_density = Array3::<f64>::zeros((n, n,n));
