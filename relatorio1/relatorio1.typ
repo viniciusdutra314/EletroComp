@@ -460,7 +460,7 @@ O método de Gauss se mostrou superior ao de Jacobi, tendo menos iterações e u
   ]
 )
 Como as bordas estão aterradas ($V=0$), o campo elétrico decai mais rapidamente próximo delas, enquanto 
-fora das bordas o campo tem uma "calda"
+fora das bordas o campo tem uma "calda" 
 #figure(
   image("results/ex08_charge_near_plate.png"),
   caption: "Campo elétrico próximo das bordas"
@@ -483,6 +483,7 @@ $1/r (partial^2)/(partial r^2)(r V)=-(rho)/epsilon $.
 where we have assumed a spherically symmetric problem so that $V$ is a function only of the distance from the origin. Solve this equation numerically using the relaxation method for a point charge at $r=0$, imposing $V=0$ some large distance away. Compare your result with Coulomb’s law, (5.21). Hint: This problem is made difficult by the factor of $1/r$ on the left side of (5.22) and its effect on constructing a numerical solution, especially when the charge distribution is a singular function at $r=0$, as is the case for a point charge. One way to deal with this problem is to instead give the “point” charge a small but nonzero spatial size; that is, assume that there is a uniform charge density inside a small sphere of radius $r_(m i n)$. If you take this approach, be sure to pick a grid size smaller than $r_(m i n​)$. Convenient parameter choices are $r_(m i n​)=0.2$ with a grid size of 0.025, and $V=0$ imposed at $r=5$, but you should also try other values. Compare your result for $V(r)$ with Figure 5.10.
   ]
 )
+ 
 
 Primeiramente, é necessário discretizar a equação de Poisson em coordenadas esféricas, uma forma simples de se fazer é isso usando uma biblioteca de cálculo simbólico como o #link("https://docs.sympy.org/latest/explanation/special_topics/finite_diff_derivatives.html","Sympy")
 
