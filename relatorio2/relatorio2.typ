@@ -190,6 +190,27 @@ Consider the magnetic field produced by a set of two coils that are both centere
   ]
 )
 
+Como o nosso código calcula somente o campo magnético gerado por *uma* curva arbitrária, podemos usar o princípio da superposição ($arrow(B)_(t o t a l)=arrow(B_1) + arrow(B_2)$) e somar o campo 
+de cada bobina individualmente. Vamos supor que ambas as bobinas possuem raio $R$ e corrente $I$, e estão posicionadas em $z=-R/2$ e $z=R/2$.
+
+$ arrow(r)_(b o b i n a 1)=(R cos(gamma), R sin(gamma), -R/2) $ 
+
+$ arrow(r)_(b o b i n a 2)=(R cos(gamma), R sin(gamma), +R/2) $
+
+O campo magnético no eixo z pode ser calculado analiticamente como:
+$ ||arrow(B)(z)||= (mu_0 I R^2)/(2(R^2 + (z - R/2)^2)^(3/2)) + (mu_0 I R^2)/(2(R^2 + (z + R/2)^2)^(3/2)) $ <eq:b_analitico_helmholtz>
+
+Usamos a @eq:b_analitico_helmholtz para comparar o resultado analítico com o resultado numérico obtido através da simulação, a comparação só será feita no eixo z, pois no outro eixo não temos o resultado analítico.
+
+#figure(
+  image("plots/ex15_helmholtz.png"),
+  caption: "Campo magnético gerado por bobinas de Helmholtz",
+) <img:helmholtz_coils>
+
+Os resultados da @img:helmholtz_coils são o que esperávamos, o campo magnético é
+muito uniforme próximo ao centro das bobinas, devido as 
+derivadas de $B$ em relação as coordenadas serem zero nesse ponto.
+
 == Exercício 5.16
 #box(
   fill: luma(240),
