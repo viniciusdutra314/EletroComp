@@ -10,6 +10,7 @@
   margin: (top: 3cm, bottom: 2.5cm, left: 2.5cm, right: 2.5cm),
 )
 #set par(justify: true)
+#set math.equation(block:true,  numbering: "(1)")
 #set document(
   title: "Projeto 2 - Campo Magnético por Integração Numérica",
   author: "Vinícius Sousa Dutra",
@@ -25,7 +26,7 @@
 
   // Main Title Section
   #text(30pt)[
-    Projeto 1 - Potenciais e campos
+    Projeto 2 - Campo Magnético
   ]
   #v(1.5em)
   #text(20pt)[
@@ -52,8 +53,70 @@
 ]
 #pagebreak()
 
+== Exercício 5.11 e 5.12
 
-== Exercício 13
+#box(
+  fill: luma(240),
+  inset: 10pt,     
+  outset: 5pt,    
+  radius: 3pt,   
+  [
+  
+Calculate the field from a straight wire using Simpson’s rule (see Appendix E), and compare it with the result obtained from (5.25) for the same grid size, $Delta z$.
+  ]
+)
+
+#box(
+  fill: luma(240),
+  inset: 10pt,     
+  outset: 5pt,    
+  radius: 3pt,   
+  [
+Evaluate (5.25) for different grid sizes and compare the results with Ampere’s law. Derive a rule of thumb concerning how small the grid size must be in comparison with the distance from the wire, in order for the calculated field to be within 5 percent of the exact result.
+  ]
+)
+
+Como os exercícios 5.11 e 5.12 são muito similares, ambos envolvendo a comparação entre os métodos de Riemann e Simpson para o cálculo do campo magnético gerado por um fio retilíneo finito, optei por resolvê-los juntos nesta seção.
+ 
+
+O método da soma de Riemann aproxima a integral de uma função dividindo a área sob a curva em uma série de retângulos e somando suas áreas, o que vem diretamente da definição do que é integração.
+
+$ integral_a^b f(x) d x= lim_(n -> infinity) sum_(i=0)^n  f(a+i(b-a)/n)(b-a)/ n $
+
+
+
+Já o método de Simpson oferece uma aproximação mais sofisticada, em vez de retângulos, ele utiliza uma aproximação parabólica  para se ajustar a pequenos segmentos da curva. O método de Simpson geralmente converge para o valor real da integral de forma muito mais rápida e com maior precisão do que a soma de Riemann para o mesmo número de subdivisões.
+
+Isso ocorre essencialmente porque um método é uma aproximação linear enquanto outro é uma aproximação quadrática
+
+Nesse caso específico estamos calculando o campo magnético gerado por um fio retilíneo finito de tamanho total $2L$ a uma distância $d$, estamos colocando o sistema de coordenadas para que a integração ocorra variando $z$, portanto, o tamanho da discretização é $d z$,
+para esse caso específico temos uma expressão analítica para o campo magnético, que é dada por:
+
+$ ||B||= (mu_0 I)/(4 pi d)L/sqrt((L/2)^2 + d^2) $  <eq:b_analitico_fio>
+
+
+Como ilustrado na @img:riemman_vs_simpsons, variamos $d z$ para cada método e comparamos o erro relativo em relação ao valor analítico do campo magnético dado pela @eq:b_analitico_fio
+
+#figure(
+  image("plots/ex11_12.png"),
+  caption: "Comparação entre os métodos de Riemann e Simpson",
+) <img:riemman_vs_simpsons>
+
+Como o esperado, o método de Simpson apresenta uma taxa de convergência muito maior do que o método da soma de Riemann, o que é evidenciado pela inclinação mais acentuada da curva correspondente ao método de Simpson no gráfico de erro relativo em função $d z$.
+
+Apartir de um certo tamanho de malha ambos os métodos começam a diminuir a precisão, isso ocorre devido à precisão limitada dos números de ponto flutuante, no caso desse código f64.
+
+#pagebreak()
+== Exercício 5.13
+#box(
+  fill: luma(240),
+  inset: 10pt,     
+  outset: 5pt,    
+  radius: 3pt,   
+  [
+    Calculate the value of π by using numerical integration to estimate the area of a circle of unit radius. Observe how your estimate approaches the exact value (3.1415926…) as the grid size in the integration is reduce
+  ]
+)
 
 Considerando o $1/4$ de circunferência $f(x)=sqrt(1-x^2)$ em que $0<=x<=1$, calculando a sua área através do método de Simpsons obtemos $A approx pi/4$
 #codly-range(0,end:30)
@@ -80,3 +143,60 @@ Considerando o $1/4$ de circunferência $f(x)=sqrt(1-x^2)$ em que $0<=x<=1$, cal
 Observamos uma relação linear no crescimento de log(N) e o decréscimo de log10(|Error|), a constante linear é aproximadamente 1.5, existe portanto uma lei de potência relacionando as duas grandezas. 
 
 O problema é que essa relação desaparece para N muito grande pois a precisão limitada dos floats começa a ser relevante
+
+
+== Exercício 5.14
+#box(
+  fill: luma(240),
+  inset: 10pt,     
+  outset: 5pt,    
+  radius: 3pt,   
+  [
+    Write a program to calculate the magnetic field for your favorite current distribution. One possibility is a pair of loops of radius r, with one loop lying in the x-y plane and the other in the y-z plane. Another possibility is the solenoid considered in Figure 5.17.
+  ]
+)
+
+Escolhi calcular o campo magnético gerado por um solenoide, pois o resultado esperado é mais simples de visualizar,o solenoide possui raio $R$ e comprimento $L$, percorrido por uma corrente $I$.
+
+Como o solenoide possui uma geometria helicoidal, precisamos criar um código que calcule o campo magnético gerado por uma curva arbitrária no espaço, essencialmente o código implementa a lei de Biot-Savart calculando a integral de linha numericamente por Simpsons.
+
+$ B(arrow(r))=(mu_0)/(4 pi) integral_gamma I ((d l)/(d gamma) times r')/(|r'^3|) d gamma $
+
+#codly-range(25,end:41)
+#figure(
+  raw(read("src/magnetic_field.jl"), lang: "julia", block: true),
+  caption: "Campo magnético gerado por uma curva arbitrária",
+) <code:magnetic_field_solenoid>
+
+Utilizando a @code:magnetic_field_solenoid, calculei o campo magnético gerado por um solenoide parametrizando o solenoide como:
+
+$ arrow(r)(gamma)=(r cos gamma,r sin gamma, L / (2π  N) gamma) $
+
+O resultado da simulação se encontra na @img:solenoid_3d, onde podemos observar que o campo magnético é mais intenso no interior do solenoide, com direção a favor de z  e diminui conforme nos afastamos do eixo do solenoide.
+
+#figure(
+  image("plots/ex14_solenoid_3d.png"),
+  caption: "Campo magnético gerado por um solenoide",
+) <img:solenoid_3d>
+
+== Exercício 5.15
+#box(
+  fill: luma(240),
+  inset: 10pt,     
+  outset: 5pt,    
+  radius: 3pt,   
+  [
+Consider the magnetic field produced by a set of two coils that are both centered on the z axis, are both parallel to the x-y plane, and are both of radius r (see Figure 5.18). Let the separation between the coils also be r. These are called Helmholtz coils and are noteworthy because they produce a particularly uniform field near the point centered between them. Calculate numerically the field produced by these coils both on the z axis (where you can compare with the exact result from Biot-Savart law), and along the x axis.
+  ]
+)
+
+== Exercício 5.16
+#box(
+  fill: luma(240),
+  inset: 10pt,     
+  outset: 5pt,    
+  radius: 3pt,   
+  [
+Calculate the magnetic field both inside and outside a coil wrapped on a torus. Be sure to compare your result for B on the axis of the torus with the exact answer.
+  ]
+)

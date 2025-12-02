@@ -1,23 +1,4 @@
-function simpsons_integration(f, a::Real, b::Real, n::Integer)::Real
-    if isodd(n)
-        throw(ArgumentError("n must be even"))
-    end
-    
-    h = (b - a) / n
-    s_odd = 0.0
-    for i in 1:2:n-1
-        s_odd += f(a + i * h)
-    end
-
-    s_even = 0.0
-    for i in 2:2:n-2
-        s_even += f(a + i * h)
-    end
-
-    s = f(a) + f(b) + 4s_odd + 2s_even
-    
-    return (h / 3) * s
-end
+include("magnetic_field.jl")
 
 f(x)=sqrt(1-(x*x))
 results = Vector{Tuple{Int,Float64,Float64}}()
