@@ -26,7 +26,7 @@
 
   // Main Title Section
   #text(30pt)[
-    Projeto 2 - Campo Magnético
+    Projeto 2 - Campos magnéticos por integração numérica
   ]
   #v(1.5em)
   #text(20pt)[
@@ -83,11 +83,26 @@ O método da soma de Riemann aproxima a integral de uma função dividindo a ár
 
 $ integral_a^b f(x) d x= lim_(n -> infinity) sum_(i=0)^n  f(a+i(b-a)/n)(b-a)/ n $
 
+#codly-range(18,end:22)
+#figure(
+  raw(read("src/magnetic_field.jl"), lang: "julia", block: true),
+  caption: "Método de Riemann",
+)
 
 
-Já o método de Simpson oferece uma aproximação mais sofisticada, em vez de retângulos, ele utiliza uma aproximação parabólica  para se ajustar a pequenos segmentos da curva. O método de Simpson geralmente converge para o valor real da integral de forma muito mais rápida e com maior precisão do que a soma de Riemann para o mesmo número de subdivisões.
+Já o método de Simpson oferece uma aproximação mais sofisticada, em vez de retângulos, ele utiliza uma aproximação parabólica  para se ajustar a pequenos segmentos da curva. A fórmula abaixo considera N par,
+por simplicidade vamos desconsiderar o caso impar (retornando um erro na implementação).
 
-Isso ocorre essencialmente porque um método é uma aproximação linear enquanto outro é uma aproximação quadrática
+$ integral_a^b f(x)d x approx (Delta x)/3(f(a) +f(b)+ 4 sum_(i=í m p a r e s)f(x_i)+2sum_(i=p a r e s)f(x_i)) $
+
+#codly-range(8,end:16)
+#figure(
+  raw(read("src/magnetic_field.jl"), lang: "julia", block: true),
+  caption: "Método de Simpsons",
+)
+
+
+O método de Simpson geralmente converge para o valor real da integral de forma muito mais rápida e com maior precisão do que a soma de Riemann para o mesmo número de subdivisões. Isso ocorre essencialmente porque um método é uma aproximação linear enquanto outro é uma aproximação quadrática
 
 Nesse caso específico estamos calculando o campo magnético gerado por um fio retilíneo finito de tamanho total $2L$ a uma distância $d$, estamos colocando o sistema de coordenadas para que a integração ocorra variando $z$, portanto, o tamanho da discretização é $d z$,
 para esse caso específico temos uma expressão analítica para o campo magnético, que é dada por:
@@ -119,11 +134,6 @@ Apartir de um certo tamanho de malha ambos os métodos começam a diminuir a pre
 )
 
 Considerando o $1/4$ de circunferência $f(x)=sqrt(1-x^2)$ em que $0<=x<=1$, calculando a sua área através do método de Simpsons obtemos $A approx pi/4$
-#codly-range(0,end:30)
-#figure(
-  raw(read("src/cap05_ex13.jl"), lang: "julia", block: true),
-  caption: "Aproximação de pi",
-)
 
 
 
@@ -140,11 +150,9 @@ Considerando o $1/4$ de circunferência $f(x)=sqrt(1-x^2)$ em que $0<=x<=1$, cal
 )
 
 
-Observamos uma relação linear no crescimento de log(N) e o decréscimo de log10(|Error|), a constante linear é aproximadamente 1.5, existe portanto uma lei de potência relacionando as duas grandezas. 
+Observamos uma relação linear no crescimento de log(N) e o decréscimo de log10(|Error|), a constante linear é aproximadamente 1.5, existe portanto uma lei de potência relacionando as duas grandezas. O método de Simpsons é superlinear, ou seja, o erro diminui mais rapidamente do que uma relação linear conforme aumentamos o número de pontos de integração N. Nesse caso específico a potência parece ser 1.5
 
-O problema é que essa relação desaparece para N muito grande pois a precisão limitada dos floats começa a ser relevante
-
-
+#pagebreak()
 == Exercício 5.14
 #box(
   fill: luma(240),
@@ -178,6 +186,7 @@ O resultado da simulação se encontra na @img:solenoid_3d, onde podemos observa
   image("plots/ex14_solenoid_3d.png"),
   caption: "Campo magnético gerado por um solenoide",
 ) <img:solenoid_3d>
+#pagebreak()
 
 == Exercício 5.15
 #box(
@@ -210,6 +219,7 @@ Usamos a @eq:b_analitico_helmholtz para comparar o resultado analítico com o re
 Os resultados da @img:helmholtz_coils são o que esperávamos, o campo magnético é
 muito uniforme próximo ao centro das bobinas, devido as 
 derivadas de $B$ em relação as coordenadas serem zero nesse ponto.
+#pagebreak()
 
 == Exercício 5.16
 #box(
@@ -221,3 +231,25 @@ derivadas de $B$ em relação as coordenadas serem zero nesse ponto.
 Calculate the magnetic field both inside and outside a coil wrapped on a torus. Be sure to compare your result for B on the axis of the torus with the exact answer.
   ]
 )
+
+Para encontramos a curva $gamma$ associada ao toroide, baste notarmos que existe uma relação entre os ângulos da parametrização, precisamos que se um ângulo complete uma volta o outro percorra $N$ voltas, por tanto podemos reduzir a dimensão da superfície toroidal para uma reta, usando o vinculo: $theta/(phi)=N$
+
+$ arrow(r)=((R+r sin theta)cos(theta N),(R+ r sin theta)sin (N theta),r cos (theta)) $
+
+Onde $R$ é o raio maior do toroide, $r$ é o raio menor e $N$ é o número de voltas da espira em torno do toroide, basta rodarmos o código para essa curva para obter o campo magnético gerado pelo toroide.
+
+#figure(
+  image("plots/ex16_torus.png"),
+  caption: "Campo magnético gerado por um toroide",
+) <img:torus_coil>
+
+O resultado analítico que esperamos é:
+
+$
+||B|| = cases(
+  (mu_0 N I)/ (2 pi r), & "dentro",
+  0, & "fora "
+)
+$ <eq:b_analitico_torus>
+
+Como é visível na @img:torus_coil,a simulação modela muito bem o resultado esperado, se observa uma pequena curva de transição dentro/fora do toroide que não existe na aproximação do modelo analítico.
